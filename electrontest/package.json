@@ -1,0 +1,20 @@
+{
+  "name": "electrontest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "devStart": "electron ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@electron-forge/cli": "^6.4.2",
+    "electron": "^27.0.0"
+  },
+  "dependencies": {
+    "git": "^0.1.5"
+  }
+}

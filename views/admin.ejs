@@ -1,0 +1,284 @@
+<h1 class="pagetitle">Website Views: <%- totalViews -%></h1>
+<p>*This page does not count to website view total. Every other page does.</p>
+<h1 class="pagetitle">Home Page</h1>
+<div class="gridItem">
+    <h1>Globals</h1>
+    <div class="title-description">
+        <h3>Current Title: <%- mainTitle -%></h3>
+        <h3>Current Description: <%- mainDesc -%></h3>
+    </div>
+    <form action="/updatemaintitleanddesc" method="POST">
+        <input type="text" name="mainTitle" placeholder="Updated Title" /><br />
+        <input type="text" name="mainDesc" placeholder="Updated Desc" /><br />
+        <button type="submit">Update Main Title and Description</button>
+    </form>
+
+
+    <div class="title-description">
+        <h3>Current Button Text: <%- mainButtonText -%></h3>
+    </div>
+    <form action="/updatemainbuttontext" method="POST">
+        <input type="text" name="mainButtonText" placeholder="Updated Text" /><br />
+        <button type="submit">Update Main Button Text</button>
+    </form>
+</div>
+<div class="gridItem">
+    <h1>Features</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Style</th>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>
+                <p class="text" id="1"><%- feature1title -%></p>
+            </td>
+            <td>
+                <p class="text" id="2"><%- feature1fontawesome -%></p>
+            </td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>
+                <p class="text" id="3"><%- feature2title -%></p>
+            </td>
+            <td>
+                <p class="text" id="4"><%- feature2fontawesome -%></p>
+            </td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>
+                <p class="text" id="5"><%- feature3title -%></p>
+            </td>
+            <td>
+                <p class="text" id="6"><%- feature3fontawesome -%></p>
+            </td>
+        </tr>
+    </table>
+
+    <form action="/updatefeaturedata" method="POST">
+        <input type="text" name="featureID" placeholder="Feature Id" /><br />
+        <input type="text" name="nameOfFeature" placeholder="Updated Name" /><br />
+        <input type="text" name="classValue" placeholder="Updated Class/Style" /><br />
+        <button type="submit">Update Feature</button>
+    </form>
+
+    <h3>Current Title: <%- featuretitle -%></h3>
+    <h3>Current Description: <%- featuredesc -%></h3>
+
+
+    <form action="/updatefeaturetitleanddesc" method="POST">
+        <input type="text" name="featureTitle" placeholder="Updated Title" /><br />
+        <input type="text" name="featureDesc" placeholder="Updated Desc" /><br />
+        <button type="submit">Update Feature Title and Description</button>
+    </form>
+</div>
+<div class="gridItem">
+    <h1>Courses</h1>
+
+
+
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>
+                <p class="text" id="1"><%- course1title -%></p>
+            </td>
+            <td>
+                <p class="text" id="2"><%- course1description -%></p>
+            </td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>
+                <p class="text" id="3"><%- course2title -%></p>
+            </td>
+            <td>
+                <p class="text" id="4"><%- course2description -%></p>
+            </td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>
+                <p class="text" id="5"><%- course3title -%></p>
+            </td>
+            <td>
+                <p class="text" id="6"><%- course3description -%></p>
+            </td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>
+                <p class="text" id="5"><%- course4title -%></p>
+            </td>
+            <td>
+                <p class="text" id="6"><%- course4description -%></p>
+            </td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>
+                <p class="text" id="5"><%- course5title -%></p>
+            </td>
+            <td>
+                <p class="text" id="6"><%- course5description -%></p>
+            </td>
+        </tr>
+        <!-- <tr>
+        <td>6</td>
+        <td>
+            <p class="text" id="5">course6title</p>
+        </td>
+        <td>
+            <p class="text" id="6">course6description</p>
+        </td>
+    </tr> -->
+    </table>
+    <form action="/updatecoursesdata" method="POST">
+        <input type="text" name="courseId" placeholder="Course Id" /><br />
+        <input type="text" name="courseTitle" placeholder="Updated Name" /><br />
+        <input type="text" name="courseDesc" placeholder="Updated Description" /><br />
+        <button type="submit">Update Course</button>
+    </form>
+    <h3>Current Title: <%- coursestitle -%></h3>
+    <h3>Current Description: <%- coursesdesc -%></h3>
+
+    <form action="/updatecoursestitleanddesc" method="POST">
+        <input type="text" name="coursesTitle" placeholder="Updated Title" /><br />
+        <input type="text" name="coursesDesc" placeholder="Updated Desc" /><br />
+        <button type="submit">Update Courses Title and Description</button>
+    </form>
+</div>
+
+<h1 class="pagetitle">Management</h1>
+<div class="gridItem">
+    <h1>Verify Clubs</h1>
+    <table id="verifyClubsElement">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Club Name</th>
+            <th>Club Owner Name</th>
+            <th>Club Description</th>
+            <th>Owner Email</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    <form action="/verifyClub" method="POST">
+        <input type="text" name="clubId" placeholder="Club ID" /><br />
+        <button type="submit">Verify Club</button>
+    </form>
+</div>
+
+<div class="gridItem">
+    <h1>Contact / Help</h1>
+    <table id="contactRequestsElement">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Name</th>
+            <th>Question Asked</th>
+            <th>Fulfilled Status</th>
+            <th>ID</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    <form action="/fulfillQuestion" method="POST">
+        <input type="text" name="questionID" placeholder="Question ID" /><br />
+        <button type="submit">Mark Question as Fulfilled</button>
+    </form>
+</div>
+
+<script>
+    var feature1fontawesome = '<%- feature1fontawesome -%>'
+    var feature2fontawesome = '<%- feature2fontawesome -%>'
+    var feature3fontawesome = '<%- feature3fontawesome -%>'
+  
+    document.getElementById('2').innerText = feature1fontawesome;
+    document.getElementById('4').innerText = feature2fontawesome;
+    document.getElementById('6').innerText = feature3fontawesome;
+  
+  
+  
+  
+    function createTable(jsonData, tableID) {
+      var dataArray = Object.values(jsonData);
+  
+      var table = document.getElementById(tableID);
+  
+      var tableBody = table.querySelector('tbody');
+      if (!tableBody) {
+        tableBody = document.createElement('tbody');
+        table.appendChild(tableBody);
+      }
+  
+      dataArray.forEach(function (rowData) {
+        var row = document.createElement('tr');
+  
+        Object.values(rowData).forEach(function (value) {
+          var cell = document.createElement('td');
+          cell.innerHTML = `<p class="Clubtext">${value}</p>`;
+          row.appendChild(cell);
+        });
+  
+        tableBody.appendChild(row);
+      });
+    }
+  
+    var jsonData = `<%- JSON.stringify(clubs) -%>`;
+    jsonData = jsonData.replace(/[\r\n]/g, "");
+    var parsedData = JSON.parse(jsonData);
+    var tableID = "verifyClubsElement"
+    createTable(parsedData, tableID);
+
+    var jsonData = `<%- JSON.stringify(contactRequests) -%>`;
+    jsonData = jsonData.replace(/[\r\n]/g, "");
+    var parsedData = JSON.parse(jsonData);
+    var tableID = "contactRequestsElement"
+    createTable(parsedData, tableID);
+
+    console.log(`<%- totalViews -%>`)
+  </script>
+
+<style>
+    .text {
+      padding: 6px;
+    }
+  
+    .Clubtext {
+      padding: 30px;
+      padding-left: 35px;
+    }
+  
+    .gridItem {
+      grid-template-rows: minmax(1fr, 1fr) 3fr;
+      display: inline-grid;
+      padding: 20px;
+      border-color: black;
+      border: solid;
+      border-width: 5px;
+    }
+  
+    .title-description {
+      /* margin-bottom: 20px; */
+      margin: 0;
+      padding: 0
+    }
+  
+    .pagetitle {
+      text-align: center;
+    }
+  </style>
