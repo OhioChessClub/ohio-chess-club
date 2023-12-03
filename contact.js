@@ -75,7 +75,7 @@ adminconnection.on('error', (err) => {
 
 const contactPost = async (req, res) => {
   try {
-    var formEnabled = false;
+    var formEnabled = true;
     if(formEnabled === true){
       
 

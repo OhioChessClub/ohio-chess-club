@@ -8,7 +8,10 @@ const app = express();
 const session = require('express-session')
 const ejs = require('ejs')
 
-
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-store')
+  next()
+})
 
 // FALSE: WEBSITE IN "LOCKDOWN" COULD BE USED FOR BIG ISSUES OR NOT RELEASED YET
 // TRUE: WESITE FUNCTIONS LIKE NORMAL
@@ -295,9 +298,12 @@ else if (isPublic === false) {
   app.get('/', (req, res) => {
     res.render('siteNotPublic')
   });
+  app.get('/css/allFrontend.css', (req, res) => {
+    res.sendFile('C:\\Users\\colew\\OneDrive\\Documents\\server\\views\\allFrontend.css');
+  })  
   app.use(async (req, res) => {
-    await updateViews()
-    res.status(404).render('404.ejs');
+    // res.status(404).render('404.ejs');
+    res.redirect('/')
   });
 }
 else {
