@@ -90,7 +90,7 @@ function logInAccount(req, res, email) {
 const loginPost = async (req, res) => {
   const { email, password } = req.body;
   if (!isValidEmail(email)) {
-    if(email === "admin"){
+    if(email === process.env.adminEmail){
       // Admin attempting to log in, don't stop it
     }
     else {
