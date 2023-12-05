@@ -97,7 +97,7 @@ function checkAccess(req, res) {
 }
 
 const createClubPost = async (req, res) => {
-  var publiclyAvaliable = true;
+  var publiclyAvaliable = false;
   
   if(publiclyAvaliable === true){
 

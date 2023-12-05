@@ -64,5 +64,4 @@ app.get('/logos/Social-Icon-BlackOnWhite.png', (req, res) => {
 app.get('/logos/Social-Icon-WhiteOnBlack.png', (req, res) => {
   res.sendFile(`C:\\Users\\colew\\OneDrive\\Documents\\server\\logos\\Social-Icon-WhiteOnBlack.png`)
 })
-
 module.exports = app;
