@@ -16,15 +16,15 @@ mo
 
 This site will not just work out of the box. You must:
 A. Setup the .env file. (This site runs of MySQL Databases) Fields required below.
-    SESSION_SECRET=secret(Rand. String)
-    ADMIN_UPDATE_PAGE=admin(Ex. /admin will be the admin page)
-    registerPage=register
-    defaultHost=localhost (You want the database hosted on the same machine. Database should not be public. Only your machine should be connected.)
-    defaultUser=____ (Information of logging in to the database. Setup in mysql accounts.)
-    defaultPassword=____ (Information of logging in to the database. Setup in mysql accounts.)
-    defaultDatabase=____ (Information of logging in to the database. Setup in mysql accounts.)
-    adminHost=____ (Information of logging in to the database. Setup in mysql accounts.)
-    adminUser=____ (Information of logging in to the database. Setup in mysql accounts.)
-    adminPassword=____ (Information of logging in to the database. Setup in mysql accounts.)
-    adminDatabase=ohiochessclub (Database the site will use.)
-    adminEmail=admin (Account with admin permissions. Keep in mind, this email you enter is specially coded into the website. Normally you would have to have a valid email address.)
+    SESSION_SECRET=secret(Rand. String)<br>
+    ADMIN_UPDATE_PAGE=admin(Ex. /admin will be the admin page)<br>
+    registerPage=register<br>
+    defaultHost=localhost (You want the database hosted on the same machine. Database should not be public. Only your machine should be connected.)<br>
+    defaultUser=____ (Information of logging in to the database. Setup in mysql accounts.)<br>
+    defaultPassword=____ (Information of logging in to the database. Setup in mysql accounts.)<br>
+    defaultDatabase=____ (Information of logging in to the database. Setup in mysql accounts.)<br>
+    adminHost=____ (Information of logging in to the database. Setup in mysql accounts.)<br>
+    adminUser=____ (Information of logging in to the database. Setup in mysql accounts.)<br>
+    adminPassword=____ (Information of logging in to the database. Setup in mysql accounts.)<br>
+    adminDatabase=ohiochessclub (Database the site will use.)<br>
+    adminEmail=admin (Account with admin permissions. Keep in mind, this email you enter is specially coded into the website. Normally you would have to have a valid email address.)<br>
