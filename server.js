@@ -61,6 +61,7 @@ if (isPublic) {
   app.post('/register', authenticationPost.registerPost);
   app.post('/login', authenticationPost.loginPost);
   app.post('/verify', authenticationPost.verifyPost);
+  app.post('/forgotpasswordpost', authenticationPost.forgotPasswordPost);
 
   const authenticationGet = require('./authenticationGet');
   app.get('/register', async (req, res) => {

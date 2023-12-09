@@ -55,8 +55,8 @@ app.get('/mainVideo.mp4', (req, res) => {
   res.sendFile('C:\\Users\\colew\\OneDrive\\Documents\\server\\videos\\introductory-video.mp4')
 })
 
-app.get('/logos/Facebook-Cover.jpg', (req, res) => {
-  res.sendFile(`C:\\Users\\colew\\OneDrive\\Documents\\server\\logos\\Facebook-Cover.png`)
+app.get('/logos/Facebook-Banner.jpg', (req, res) => {
+  res.sendFile(`C:\\Users\\colew\\OneDrive\\Documents\\server\\logos\\Facebook-Banner.png`)
 })
 app.get('/logos/Social-Icon-BlackOnWhite.png', (req, res) => {
   res.sendFile(`C:\\Users\\colew\\OneDrive\\Documents\\server\\logos\\Social-Icon-BlackOnWhite.png`)

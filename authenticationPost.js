@@ -81,10 +81,13 @@ function accountNotVerified(req, res, email) {
   req.session.email = email;
   req.session.accountPresent = true;
   req.session.accountVerified = false;
+  req.sesssion.loggedIn = false;
 }
 function logInAccount(req, res, email) {
   req.session.loggedIn = true;
   req.session.email = email;
+  req.session.accountPresent = true;
+  req.session.accountVerified = true;
 }
 
 const loginPost = async (req, res) => {
@@ -187,9 +190,7 @@ const registerPost = async (req, res) => {
                 res.render('register', { actionError: error })
               } else {
                 // req.session.loggedIn = true;
-                req.session.email = email;
-                req.session.accountPresent = true;
-                req.session.accountVerified = false;
+                accountNotVerified(req, session, email)
                 const contents = `
 <div class="container">
   <div class="content">
@@ -277,8 +278,8 @@ const verifyPost = async (req, res) => {
           subject: "Email Verified",
           html: contents,
         });
-
-        req.session.loggedIn = true;
+        var email = req.session.email;
+        logInAccount(req, res, email)
         res.redirect('/login');
       });
     } else {
@@ -288,7 +289,25 @@ const verifyPost = async (req, res) => {
 };
 
 
+const forgotPasswordPost = async(req, res) => {
+  const { email } = req.body;
+  var emailIsValid = isValidEmail(email);
+  if(emailIsValid === true || email === process.env.adminEmail){
+    var query = "SELECT * FROM `users` WHERE email = ?";
+    adminconnection.query(query, [email], async(error, results) => {
+      if(error){
+        res.render('forgotPassword', { actionError: "There was an unknown error while reseting your passcode. Our developers have been notified and are looking in to it. If this issue persists, feel free to use the contact form so we can help you directly. Thanks so much!"})
+      }
+      else{
+        console.log(results)
+      }
+    })
+  }
+  else {
+    res.render('forgotPassword',  {actionError: "That email is not a valid email."} )
+  }
 
+}
 
 
 
@@ -296,7 +315,8 @@ const verifyPost = async (req, res) => {
 module.exports = {
   registerPost,
   loginPost,
-  verifyPost
+  verifyPost,
+  forgotPasswordPost
 };
 
 

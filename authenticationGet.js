@@ -102,7 +102,25 @@ function applyRes(req, res) {
 
 const checkUserFile = require('./checkForUser')
 
-
+var userInfoGet = async(req, res) => {
+  if(req.session.accountPresent){
+    //   req.session.email
+  // req.session.accountPresent
+  // req.session.accountVerified
+  // req.sesssion.loggedIn
+  var email = req.session.email;
+  var verifiedStatus;
+  if(req.session.accountVerified){
+    // User is fully verified
+    verifiedStatus = "Verified"
+  }
+  }
+  else{
+    var userInfo = {
+      status: "NotLoggedIn"
+    }
+  }
+}
 
 module.exports = {
   loginGet,
