@@ -37,40 +37,8 @@ function removeReturn(req, res) {
 }
 
 // LOAD MYSQL MODULES AND CONNECT TO DB
-const mysql = require('mysql')
-const connection = mysql.createConnection({
-  host: process.env.defaultHost,
-  user: process.env.defaultUser,
-  password: process.env.defaultPassword,
-  database: process.env.defaultDatabase
-});
+const { adminConnection, connection } = require('./database');
 
-const adminconnection = mysql.createConnection({
-  host: process.env.adminHost,
-  user: process.env.adminUser,
-  password: process.env.adminPassword,
-  database: process.env.adminDatabase,
-});
-
-connection.on('error', (err) => {
-  if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-    console.error('MySQL connection lost');
-    // Re-establish the connection
-    connection.connect();
-  } else {
-    throw err;
-  }
-});
-
-adminconnection.on('error', (err) => {
-  if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-    console.error('MySQL connection lost');
-    // Re-establish the connection
-    connection.connect();
-  } else {
-    throw err;
-  }
-});
 
 
 const contactPost = async (req, res) => {
@@ -131,7 +99,7 @@ function sendError(req, res, error){
 
 function importIntoDatabase(contactName, contactEmail, contactText, isFulfilled, req, res){
   const query = "INSERT INTO `contactrequests` (`email`, `name`, `question`, `isFulfilled`) VALUES (?, ?, ?, ?);"
-  adminconnection.query(query, [contactEmail, contactName, contactText, isFulfilled], (error, results) => {
+  adminConnection.query(query, [contactEmail, contactName, contactText, isFulfilled], (error, results) => {
     if(error){
       sendError(req, res, error)
       return;

@@ -14,36 +14,7 @@ const transporter = nodeMailer.createTransport({
 // LOAD BCRYPT
 const bcrypt = require('bcrypt')
 
-
-// LOAD EXPRESS AND DEFINE EXPRESS MODULES
-const express = require('express')
-const session = require('express-session')
-const app = express();
-app.use(express.urlencoded({ extended: false }))
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: true
-}))
-
-// LOAD MYSQL MODULES AND CONNECT TO DB
-const mysql = require('mysql')
-const adminconnection = mysql.createConnection({
-  host: process.env.adminHost,
-  user: process.env.adminUser,
-  password: process.env.adminPassword,
-  database: process.env.adminDatabase,
-});
-
-adminconnection.on('error', (err) => {
-  if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-    console.error('MySQL connection lost');
-    // Re-establish the connection
-    connection.connect();
-  } else {
-    throw err;
-  }
-});
+const { adminConnection, connection } = require('./database')
 
 // COMMENT OUT HERE
 const updatefeaturetitleanddesc = (req, res) => {
@@ -51,12 +22,12 @@ const updatefeaturetitleanddesc = (req, res) => {
 
   let sql = "UPDATE `titles` SET `valueOfTitle` = ? WHERE `titles`.`id` = 1;"
   let sql2 = "UPDATE `titles` SET `valueOfTitle` = ? WHERE `titles`.`id` = 2;"
-  adminconnection.query(sql, [featureTitle], (error, result) => {
+  adminConnection.query(sql, [featureTitle], (error, result) => {
     if (error) {
       res.send("Unknown error updating data, contact Cole.")
       console.log(error)
     } else {
-      adminconnection.query(sql2, [featureDesc], (error, result) => {
+      adminConnection.query(sql2, [featureDesc], (error, result) => {
         if (error) {
           res.send("Unknown error updating data, contact Cole.")
           console.log(error)
@@ -71,12 +42,12 @@ const updatecoursestitleanddesc = (req, res) => {
 
   let sql = "UPDATE `titles` SET `valueOfTitle` = ? WHERE `titles`.`id` = 3;"
   let sql2 = "UPDATE `titles` SET `valueOfTitle` = ? WHERE `titles`.`id` = 4;"
-  adminconnection.query(sql, [coursesTitle], (error, result) => {
+  adminConnection.query(sql, [coursesTitle], (error, result) => {
     if (error) {
       res.send("Unknown error updating data, contact Cole.")
       console.log(error)
     } else {
-      adminconnection.query(sql2, [coursesDesc], (error, result) => {
+      adminConnection.query(sql2, [coursesDesc], (error, result) => {
         if (error) {
           res.send("Unknown error updating data, contact Cole.")
           console.log(error)
@@ -91,12 +62,12 @@ const updatemaintitleanddesc = (req, res) => {
 
   let sql = "UPDATE `titles` SET `valueOfTitle` = ? WHERE `titles`.`id` = 5;"
   let sql2 = "UPDATE `titles` SET `valueOfTitle` = ? WHERE `titles`.`id` = 6;"
-  adminconnection.query(sql, [mainTitle], (error, result) => {
+  adminConnection.query(sql, [mainTitle], (error, result) => {
     if (error) {
       res.send("Unknown error updating data, contact Cole.")
       console.log(error)
     } else {
-      adminconnection.query(sql2, [mainDesc], (error, result) => {
+      adminConnection.query(sql2, [mainDesc], (error, result) => {
         if (error) {
           res.send("Unknown error updating data, contact Cole.")
           console.log(error)
@@ -110,7 +81,7 @@ const updatemainbuttontext = (req, res) => {
   const { mainButtonText } = req.body;
 
   let sql = "UPDATE `titles` SET `valueOfTitle` = ? WHERE `titles`.`id` = 7;"
-  adminconnection.query(sql, [mainButtonText], (error, result) => {
+  adminConnection.query(sql, [mainButtonText], (error, result) => {
     if (error) {
       res.send("Unknown error updating data, contact Cole.")
       console.log(error)
@@ -123,7 +94,7 @@ const updatefeaturedata = (req, res) => {
   const { featureID, nameOfFeature, classValue } = req.body;
 
   let sql = "UPDATE `features` SET `nameOfFeature` = ?, `classValue` = ? WHERE `features`.`id` = ?;"
-  adminconnection.query(sql, [nameOfFeature, classValue, featureID], (error, result) => {
+  adminConnection.query(sql, [nameOfFeature, classValue, featureID], (error, result) => {
     if (error) {
       res.send("Unknown error updating data, contact Cole.")
     }
@@ -134,7 +105,7 @@ const updatecoursesdata = (req, res) => {
   const { courseId, courseTitle, courseDesc } = req.body;
 
   let sql = "UPDATE `courses` SET `courseTitle` = ?, `courseDesc` = ? WHERE `courses`.`id` = ?;"
-  adminconnection.query(sql, [courseTitle, courseDesc, courseId], (error, result) => {
+  adminConnection.query(sql, [courseTitle, courseDesc, courseId], (error, result) => {
     if (error) {
       res.send("Unknown error updating data, contact Cole.")
     }
@@ -148,7 +119,7 @@ const verifyClub = (req, res) => {
   }
   else {
     let sql = "SELECT * FROM unverifiedclubs WHERE `unverifiedclubs`.`id` = ?;"
-    adminconnection.query(sql, [clubId], (error, result) => {
+    adminConnection.query(sql, [clubId], (error, result) => {
       if (error) {
         res.send("Unknown error updating data, contact Cole.")
         console.log(error)
@@ -156,14 +127,14 @@ const verifyClub = (req, res) => {
       }
       const data = result[0]
       const verifySQL = "INSERT INTO `clubs` (`id`, `clubName`, `clubOwnerName`, `clubDescription`, `ownerEmail`) VALUES (NULL, ?, ?, ?, ?);"
-      adminconnection.query(verifySQL, [data.clubName, data.clubOwnerName, data.clubDescription, data.ownerEmail], async (error, results) => {
+      adminConnection.query(verifySQL, [data.clubName, data.clubOwnerName, data.clubDescription, data.ownerEmail], async (error, results) => {
         if (error) {
           res.send("Unknown error updating data, contact Cole.");
           console.log(error)
           return
         }
         const removeOldSQL = "DELETE FROM unverifiedclubs WHERE id = ?;"
-        adminconnection.query(removeOldSQL, [clubId], async (error, results) => {
+        adminConnection.query(removeOldSQL, [clubId], async (error, results) => {
           if (error) {
             res.send("Unknown error updating data, contact Cole.")
             console.log(error)
@@ -198,7 +169,7 @@ const markContactResolved = async (req, res) => {
   }
   else {
     const markResolvedQuery = "UPDATE `contactrequests` SET `isFulfilled` = 'y' WHERE `contactrequests`.`requestID` = ?;"
-    adminconnection.query(markResolvedQuery, [questionID], async (error, results) => {
+    adminConnection.query(markResolvedQuery, [questionID], async (error, results) => {
       if (error) {
         res.send('There was an error, please contact Cole.')
       }

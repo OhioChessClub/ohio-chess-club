@@ -8,6 +8,17 @@ const app = express();
 const session = require('express-session')
 const ejs = require('ejs')
 
+app.use(session({
+  secret: 'WEqwewqewq4F5WEQWEFQW',
+  resave: false,
+  saveUninitialized: false,
+}));
+
+  app.use((req, res, next) => {
+    res.locals.session = req.session;
+    next();
+  });
+
 app.use((req, res, next) => {
   res.set('Cache-Control', 'no-store')
   next()
@@ -20,15 +31,9 @@ var isPublic = true;
 
 const staticFiles = require('./staticFiles');
 app.use(staticFiles)
-const { raw } = require('mysql');
 app.set('view engine', 'ejs')
 
-app.use(express.urlencoded({ extended: false }))
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: true
-}))
+
 
 const databaseHelper = require('./database');
 const connection = databaseHelper.connection;
@@ -258,10 +263,6 @@ if (isPublic) {
   });
 
 
-  app.use((req, res, next) => {
-    res.locals.session = req.session;
-    next();
-  });
 
 
 

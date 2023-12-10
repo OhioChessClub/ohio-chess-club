@@ -1,22 +1,4 @@
-const mysql = require('mysql');
-
-
-const connection = mysql.createConnection({
-    host: process.env.defaultHost,
-    user: process.env.defaultUser,
-    password: process.env.defaultPassword,
-    database: process.env.defaultDatabase,
-});
-
-connection.on('error', (err) => {
-    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-      console.error('MySQL connection lost');
-      // Re-establish the connection
-      connection.connect();
-    } else {
-      throw err;
-    }
-  });
+const { adminConnection, connection } = require('./database')
   
 
 //   await checkUserFile.checkForUser(req, res);

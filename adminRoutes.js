@@ -1,40 +1,8 @@
 // LOAD DOTENV
 require('dotenv').config();
 
-
-// LOAD BCRYPT
-const bcrypt = require('bcrypt')
-
-
-// LOAD EXPRESS AND DEFINE EXPRESS MODULES
-const express = require('express')
-const session = require('express-session')
-const app = express();
-app.use(express.urlencoded({ extended: false }))
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: true
-}))
-
 // LOAD MYSQL MODULES AND CONNECT TO DB
-const mysql = require('mysql')
-const adminconnection = mysql.createConnection({
-  host: process.env.adminHost,
-  user: process.env.adminUser,
-  password: process.env.adminPassword,
-  database: process.env.adminDatabase,
-});
-
-adminconnection.on('error', (err) => {
-  if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-    console.error('MySQL connection lost');
-    // Re-establish the connection
-    connection.connect();
-  } else {
-    throw err;
-  }
-});
+const { adminConnection, connection } = require('./database')
 
 let feature1title;
 let feautre1fontawesome;
@@ -67,7 +35,7 @@ const admin = async (req, res) => {
   try {
     const query = 'SELECT * FROM features;';
 
-    await adminconnection.query(query, async (error, results) => {
+    await adminConnection.query(query, async (error, results) => {
       if (error) {
         console.log(`Error getting posts: ${error}`);
       } else {
@@ -81,7 +49,7 @@ const admin = async (req, res) => {
         // Start #2
 
         const titlequery = 'SELECT * FROM titles;';
-        await adminconnection.query(titlequery, async (error, results) => {
+        await adminConnection.query(titlequery, async (error, results) => {
           featuretitle = results[0].valueOfTitle;
           featuredesc = results[1].valueOfTitle;
           coursestitle = results[2].valueOfTitle;
@@ -93,7 +61,7 @@ const admin = async (req, res) => {
 
 
           const getCoursesSQL = `SELECT * FROM courses`
-          await adminconnection.query(getCoursesSQL, async (error, results) => {
+          await adminConnection.query(getCoursesSQL, async (error, results) => {
             course1title = results[0].courseTitle
             course1description = results[0].courseDesc
             course2title = results[1].courseTitle
@@ -109,7 +77,7 @@ const admin = async (req, res) => {
 
 
             const getUnverifiedClub = "SELECT * FROM `unverifiedclubs`";
-            await adminconnection.query(getUnverifiedClub, async (error, results) => {
+            await adminConnection.query(getUnverifiedClub, async (error, results) => {
               if (error) {
                 console.log(`Error getting clubs: ${error}`)
               }
@@ -118,11 +86,11 @@ const admin = async (req, res) => {
 
               const getContactRequestsQuery = "SELECT * FROM contactrequests WHERE isFulfilled = 'n'";
 
-              await adminconnection.query(getContactRequestsQuery, async (error, results) => {
+              await adminConnection.query(getContactRequestsQuery, async (error, results) => {
                 contactRequests = results;
 
                 var getViewCount = "SELECT * FROM `views` WHERE id = 1"
-                await adminconnection.query(getViewCount, async (error, results) => {
+                await adminConnection.query(getViewCount, async (error, results) => {
                   totalViews = results[0].totalViews;
                   res.render(process.env.ADMIN_UPDATE_PAGE, {
                     feature1title,

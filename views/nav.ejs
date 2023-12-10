@@ -11,8 +11,6 @@
     <meta name="description" content="<%- description -%>">
 </head>
 
-<head>
-</head>
 <nav>
     <ul class="nav-top-white">
         <li id="navlogotext">
@@ -45,6 +43,9 @@
 </nav>
 
 <script>
+    
+
+
     var userInformation = fetch('/AccountInformationNavGet')
     var userInformationJson = userInformation.json()
     console.log(userInformation)

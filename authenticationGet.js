@@ -12,23 +12,13 @@ app.use(express.urlencoded({ extended: false }))
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: true
+  saveUninitialized: false
 }))
-const connection = mysql.createConnection({
-  host: process.env.defaultHost,
-  user: process.env.defaultUser,
-  password: process.env.defaultPassword,
-  database: process.env.defaultDatabase
-});
-connection.on('error', (err) => {
-  if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-    console.error('MySQL connection lost');
-    // Re-establish the connection
-    connection.connect();
-  } else {
-    throw err;
-  }
-});
+
+
+const { connection, adminConnection } = require('./database')
+
+
 
 const loginGet = async (req, res) => {
   if (req.session.accountPresent) {

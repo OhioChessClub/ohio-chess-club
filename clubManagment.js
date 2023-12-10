@@ -38,40 +38,7 @@ function removeReturn(req, res) {
 }
 
 // LOAD MYSQL MODULES AND CONNECT TO DB
-const mysql = require('mysql')
-const connection = mysql.createConnection({
-  host: process.env.defaultHost,
-  user: process.env.defaultUser,
-  password: process.env.defaultPassword,
-  database: process.env.defaultDatabase
-});
-
-const adminconnection = mysql.createConnection({
-  host: process.env.adminHost,
-  user: process.env.adminUser,
-  password: process.env.adminPassword,
-  database: process.env.adminDatabase,
-});
-
-connection.on('error', (err) => {
-  if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-    console.error('MySQL connection lost');
-    // Re-establish the connection
-    connection.connect();
-  } else {
-    throw err;
-  }
-});
-
-adminconnection.on('error', (err) => {
-  if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-    console.error('MySQL connection lost');
-    // Re-establish the connection
-    connection.connect();
-  } else {
-    throw err;
-  }
-});
+const { adminConnection, connection } = require('./database')
 
 
 
@@ -113,7 +80,7 @@ const createClubPost = async (req, res) => {
 
 
   const query = "INSERT INTO `unverifiedclubs` (`clubName`, `clubOwnerName`, `clubDescription`, `ownerEmail`) VALUES (?, ?, ?, ?);"
-  adminconnection.query(query, [clubName, clubOwnerName, clubDescription, ownerEmail], async (error, results) => {
+  adminConnection.query(query, [clubName, clubOwnerName, clubDescription, ownerEmail], async (error, results) => {
     if (error) {
       console.log(error)
     }
@@ -286,7 +253,7 @@ const updateInfoPost = async (req, res) => {
         console.log(error);
       } else if (results.length > 0) {
         const updateQuery = "UPDATE `clubs` SET `clubName` = ?, `clubOwnerName` = ?, `clubDescription` = ? WHERE ownerEmail LIKE CONCAT('%', ?, '%') LIMIT 1;";
-        adminconnection.query(updateQuery, [clubName, clubOwnerName, clubDescription, ownerEmail], (error, results) => {
+        adminConnection.query(updateQuery, [clubName, clubOwnerName, clubDescription, ownerEmail], (error, results) => {
           if (error) {
             res.send('Unknown error, contact Cole or support.');
             console.log(error);
@@ -320,7 +287,7 @@ const addOwnerEmail = async (req, res) => {
 
     if (isAccessTrue) {
       const checkQuery = "SELECT COUNT(*) AS emailCount FROM `clubs` WHERE ownerEmail LIKE CONCAT('%', ?, '%');";
-      adminconnection.query(checkQuery, [newEmail], async (error, results) => {
+      adminConnection.query(checkQuery, [newEmail], async (error, results) => {
         if (error) {
           res.send('Unknown error, contact Cole or support.');
           console.log(error);
@@ -332,7 +299,7 @@ const addOwnerEmail = async (req, res) => {
             return;
           } else {
             const selectQuery = "SELECT ownerEmail FROM `clubs` WHERE ownerEmail LIKE CONCAT('%', ?, '%') LIMIT 1;";
-            adminconnection.query(selectQuery, [ownerEmail], (error, results) => {
+            adminConnection.query(selectQuery, [ownerEmail], (error, results) => {
               if (error) {
                 res.send('Unknown error, contact Cole or support.');
                 console.log(error);
@@ -342,7 +309,7 @@ const addOwnerEmail = async (req, res) => {
                 const updatedEmailsStr = updatedEmails.join(',');
 
                 const updateQuery = "UPDATE `clubs` SET `ownerEmail` = ? WHERE ownerEmail LIKE CONCAT('%', ?, '%');";
-                adminconnection.query(updateQuery, [updatedEmailsStr, ownerEmail], (error, results) => {
+                adminConnection.query(updateQuery, [updatedEmailsStr, ownerEmail], (error, results) => {
                   if (error) {
                     res.send('Unknown error, contact Cole or support.');
                     console.log(error);
@@ -380,7 +347,7 @@ const removeOwnerEmail = async (req, res) => {
 
     if (isAccessTrue) {
       const selectQuery = "SELECT ownerEmail FROM `clubs` WHERE ownerEmail LIKE CONCAT('%', ?, '%') LIMIT 1;";
-      adminconnection.query(selectQuery, [ownerEmail], (error, results) => {
+      adminConnection.query(selectQuery, [ownerEmail], (error, results) => {
         if (error) {
           res.send('Unknown error, contact Cole or support.');
           console.log(error);
@@ -393,7 +360,7 @@ const removeOwnerEmail = async (req, res) => {
           const updatedEmailsStr = updatedEmails.join(',');
 
           const updateQuery = "UPDATE `clubs` SET `ownerEmail` = ? WHERE ownerEmail LIKE CONCAT('%', ?, '%');";
-          adminconnection.query(updateQuery, [updatedEmailsStr, ownerEmail], (error, results) => {
+          adminConnection.query(updateQuery, [updatedEmailsStr, ownerEmail], (error, results) => {
             if (error) {
               res.send('Unknown error, contact Cole or support.');
               console.log(error);

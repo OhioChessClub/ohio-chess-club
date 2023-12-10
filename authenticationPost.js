@@ -25,12 +25,7 @@ const transporter = nodeMailer.createTransport({
 
 
 const app = express();
-app.use(express.urlencoded({ extended: false }))
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: true
-}))
+
 function isValidEmail(email) {
   // Regular expression for a simple email validation
   var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -42,40 +37,7 @@ function removeReturn(req, res) {
 }
 
 // LOAD MYSQL MODULES AND CONNECT TO DB
-const mysql = require('mysql')
-const connection = mysql.createConnection({
-  host: process.env.defaultHost,
-  user: process.env.defaultUser,
-  password: process.env.defaultPassword,
-  database: process.env.defaultDatabase
-});
-
-const adminconnection = mysql.createConnection({
-  host: process.env.adminHost,
-  user: process.env.adminUser,
-  password: process.env.adminPassword,
-  database: process.env.adminDatabase,
-});
-
-connection.on('error', (err) => {
-  if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-    console.error('MySQL connection lost');
-    // Re-establish the connection
-    connection.connect();
-  } else {
-    throw err;
-  }
-});
-
-adminconnection.on('error', (err) => {
-  if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-    console.error('MySQL connection lost');
-    // Re-establish the connection
-    connection.connect();
-  } else {
-    throw err;
-  }
-});
+const { adminConnection, connection } = require('./database')
 
 function accountNotVerified(req, res, email) {
   req.session.email = email;
@@ -252,7 +214,7 @@ const verifyPost = async (req, res) => {
     const code = results[0].verificationCode.toString();
 
     if (enteredCode === code) {
-      adminconnection.query(sqlcorrectverify, [req.session.email], async (error, results) => {
+      adminConnection.query(sqlcorrectverify, [req.session.email], async (error, results) => {
         if (error) {
           console.log(error);
           res.redirect('verify');
@@ -294,7 +256,7 @@ const forgotPasswordPost = async(req, res) => {
   var emailIsValid = isValidEmail(email);
   if(emailIsValid === true || email === process.env.adminEmail){
     var query = "SELECT * FROM `users` WHERE email = ?";
-    adminconnection.query(query, [email], async(error, results) => {
+    adminConnection.query(query, [email], async(error, results) => {
       if(error){
         res.render('forgotPassword', { actionError: "There was an unknown error while reseting your passcode. Our developers have been notified and are looking in to it. If this issue persists, feel free to use the contact form so we can help you directly. Thanks so much!"})
       }
