@@ -57,7 +57,7 @@ const descMap = {
 }
 
 // DECLARE TITLE FINDING HELPER FUNCTIONS
-function getTitleFromFile() {
+function getTitleFromFile(fileName) {
   if (titleMap.hasOwnProperty(fileName)) {
     return titleMap[fileName]
   }
@@ -65,7 +65,7 @@ function getTitleFromFile() {
     return "File's title does not exist."
   }
 }
-function getDescFromFile() {
+function getDescFromFile(fileName) {
   if (descMap.hasOwnProperty(fileName)) {
     return descMap[fileName]
   }
