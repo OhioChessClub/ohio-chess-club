@@ -15,10 +15,9 @@ app.use(session({
   saveUninitialized: false
 }))
 
-
-const { connection, adminConnection } = require('./database')
-
-
+const {
+  usersModel
+} = require('./database')
 
 const loginGet = async (req, res) => {
   if (req.session.accountPresent) {
@@ -44,26 +43,21 @@ const registerGet = async (req, res) => {
 
 };
 const verifyGet = async (req, res) => {
-  if (req.session.loggedIn) {
-    res.redirect('/')
-    return;
-  }
-  if (!req.session.loggedIn) {
-    if (req.session.accountVerified === false) {
-      const email = req.session.email; // Retrieve email from session or wherever it is stored
+  try {
+    if (req.session.loggedIn) {
+      res.redirect('/')
+      return;
+    }
+    if (!req.session.loggedIn) {
+      if (req.session.accountVerified === false) {
+        const email = req.session.email; // Retrieve email from session or wherever it is stored
 
-      if (!email) {
-        res.redirect('login');
-        return;
-      }
-
-      const query = 'SELECT * FROM users WHERE email = ?';
-      connection.query(query, [email], (error, results) => {
-        if (error) {
-          console.error(error);
+        if (!email) {
           res.redirect('login');
           return;
         }
+        const query = { email: email }
+        var results = await usersModel.findOne(query)
 
         if (results.length === 0 || results[0].password === undefined || results[0].password === null) {
           res.redirect('login');
@@ -77,8 +71,15 @@ const verifyGet = async (req, res) => {
           res.render('verify', { email: req.session.email });
           return;
         }
-      });
-    } else {
+      } else {
+        res.redirect('login');
+        return;
+      }
+
+    }
+  } catch (error) {
+    if (error) {
+      console.log("VERIFY GET ERROR: " + error);
       res.redirect('login');
       return;
     }
@@ -92,20 +93,20 @@ function applyRes(req, res) {
 
 const checkUserFile = require('./checkForUser')
 
-var userInfoGet = async(req, res) => {
-  if(req.session.accountPresent){
+var userInfoGet = async (req, res) => {
+  if (req.session.accountPresent) {
     //   req.session.email
-  // req.session.accountPresent
-  // req.session.accountVerified
-  // req.sesssion.loggedIn
-  var email = req.session.email;
-  var verifiedStatus;
-  if(req.session.accountVerified){
-    // User is fully verified
-    verifiedStatus = "Verified"
+    // req.session.accountPresent
+    // req.session.accountVerified
+    // req.sesssion.loggedIn
+    var email = req.session.email;
+    var verifiedStatus;
+    if (req.session.accountVerified) {
+      // User is fully verified
+      verifiedStatus = "Verified"
+    }
   }
-  }
-  else{
+  else {
     var userInfo = {
       status: "NotLoggedIn"
     }

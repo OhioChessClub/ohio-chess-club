@@ -113,7 +113,7 @@ const verifyClub = async (req, res) => {
   else {
     try {
       const unverifiedclubsQuery = { _id: clubId };
-      var unverifiedClub = await unverifiedclubsModel.find(unverifiedclubsQuery)
+      var unverifiedClub = await unverifiedclubsModel.findOne(unverifiedclubsQuery)
       const data = unverifiedClub[0]
       const club = new clubsModel({
         clubName: data.clubName,
