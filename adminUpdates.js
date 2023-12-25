@@ -14,151 +14,136 @@ const transporter = nodeMailer.createTransport({
 // LOAD BCRYPT
 const bcrypt = require('bcrypt')
 
-const { adminConnection, connection } = require('./database')
-
+const {
+  featuresModel,
+  titlesModel,
+  coursesModel,
+  unverifiedclubsModel,
+  contactrequestsModel,
+  clubsModel
+} = require('./database')
 // COMMENT OUT HERE
-const updatefeaturetitleanddesc = (req, res) => {
-  const { featureTitle, featureDesc } = req.body;
-
-  let sql = "UPDATE `titles` SET `valueOfTitle` = ? WHERE `titles`.`id` = 1;"
-  let sql2 = "UPDATE `titles` SET `valueOfTitle` = ? WHERE `titles`.`id` = 2;"
-  adminConnection.query(sql, [featureTitle], (error, result) => {
-    if (error) {
-      res.send("Unknown error updating data, contact Cole.")
-      console.log(error)
-    } else {
-      adminConnection.query(sql2, [featureDesc], (error, result) => {
-        if (error) {
-          res.send("Unknown error updating data, contact Cole.")
-          console.log(error)
-        }
-        else { res.redirect(process.env.ADMIN_UPDATE_PAGE) }
-      })
-    }
-  })
+const updatefeaturetitleanddesc = async (req, res) => {
+  try {
+    const { featureTitle, featureDesc } = req.body;
+    const query1 = { id: 1 };
+    const query2 = { id: 2 };
+    await titlesModel.findOneAndUpdate(query1, { valueOfTitle: featureTitle })
+    await titlesModel.findOneAndUpdate(query2, { valueOfTitle: featureDesc })
+    res.redirect(process.env.ADMIN_UPDATE_PAGE)
+  }
+  catch (error) {
+    res.send('There was an error updating the feature title and description. Please send a contact request to let us know. ERROR: ' + error)
+    console.log("ERROR WITH ADMIN FUNCTION UPDATE FEATURE TITLE DESC: " + error)
+  }
 }
-const updatecoursestitleanddesc = (req, res) => {
-  const { coursesTitle, coursesDesc } = req.body;
+const updatecoursestitleanddesc = async (req, res) => {
+  try {
+    const { coursesTitle, coursesDesc } = req.body;
+    const query1 = { id: 3 };
+    const query2 = { id: 4 };
+    await titlesModel.findOneAndUpdate(query1, { valueOfTitle: coursesTitle })
+    await titlesModel.findOneAndUpdate(query2, { valueOfTitle: coursesDesc })
+    res.redirect(process.env.ADMIN_UPDATE_PAGE)
+  }
+  catch (error) {
+    res.send('There was an error updating the courses title and description. Please send a contact request to let us know. ERROR: ' + error)
+    console.log("ERROR WITH ADMIN FUNCTION UPDATE COURSES TITLE DESC: " + error)
+  }
 
-  let sql = "UPDATE `titles` SET `valueOfTitle` = ? WHERE `titles`.`id` = 3;"
-  let sql2 = "UPDATE `titles` SET `valueOfTitle` = ? WHERE `titles`.`id` = 4;"
-  adminConnection.query(sql, [coursesTitle], (error, result) => {
-    if (error) {
-      res.send("Unknown error updating data, contact Cole.")
-      console.log(error)
-    } else {
-      adminConnection.query(sql2, [coursesDesc], (error, result) => {
-        if (error) {
-          res.send("Unknown error updating data, contact Cole.")
-          console.log(error)
-        }
-        else { res.redirect(process.env.ADMIN_UPDATE_PAGE) }
-      })
-    }
-  })
 }
-const updatemaintitleanddesc = (req, res) => {
-  const { mainTitle, mainDesc } = req.body;
+const updatemaintitleanddesc = async (req, res) => {
+  try {
+    const { mainTitle, mainDesc } = req.body;
+    const query1 = { id: 5 };
+    const query2 = { id: 6 };
+    await titlesModel.findOneAndUpdate(query1, { valueOfTitle: mainTitle })
+    await titlesModel.findOneAndUpdate(query2, { valueOfTitle: mainDesc })
+    res.redirect(process.env.ADMIN_UPDATE_PAGE)
+  }
+  catch (error) {
+    res.send('There was an error updating the main title and description. Please send a contact request to let us know. ERROR: ' + error)
+    console.log("ERROR WITH ADMIN FUNCTION UPDATE MAIN TITLE DESC: " + error)
+  }
 
-  let sql = "UPDATE `titles` SET `valueOfTitle` = ? WHERE `titles`.`id` = 5;"
-  let sql2 = "UPDATE `titles` SET `valueOfTitle` = ? WHERE `titles`.`id` = 6;"
-  adminConnection.query(sql, [mainTitle], (error, result) => {
-    if (error) {
-      res.send("Unknown error updating data, contact Cole.")
-      console.log(error)
-    } else {
-      adminConnection.query(sql2, [mainDesc], (error, result) => {
-        if (error) {
-          res.send("Unknown error updating data, contact Cole.")
-          console.log(error)
-        }
-        else { res.redirect(process.env.ADMIN_UPDATE_PAGE) }
-      })
-    }
-  })
 }
-const updatemainbuttontext = (req, res) => {
-  const { mainButtonText } = req.body;
+const updatemainbuttontext = async (req, res) => {
+  try {
+    const { mainButtonText } = req.body;
+    const query = { id: 7 }
+    await titlesModel.findOneAndUpdate(query, { valueOfTitle: mainButtonText })
+    res.redirect(process.env.ADMIN_UPDATE_PAGE)
+  }
+  catch (error) {
+    res.send('There was an error updating the main button text. Please send a contact request to let us know. ERROR: ' + error)
+    console.log("ERROR WITH ADMIN FUNCTION UPDATE MAIN BTN TEXT: " + error)
+  }
 
-  let sql = "UPDATE `titles` SET `valueOfTitle` = ? WHERE `titles`.`id` = 7;"
-  adminConnection.query(sql, [mainButtonText], (error, result) => {
-    if (error) {
-      res.send("Unknown error updating data, contact Cole.")
-      console.log(error)
-    } else {
-      res.redirect(process.env.ADMIN_UPDATE_PAGE)
-    }
-  })
 }
-const updatefeaturedata = (req, res) => {
-  const { featureID, nameOfFeature, classValue } = req.body;
+const updatefeaturedata = async (req, res) => {
+  try {
+    const { featureID, nameOfFeature, classValue } = req.body;
+    const query = { id: featureID };
+    await featuresModel.findOneAndUpdate(query, { nameOfFeature: nameOfFeature, classValue: classValue })
+    res.redirect(process.env.ADMIN_UPDATE_PAGE)
+  }
+  catch (error) {
+    res.send('There was an error updating the feature. Please send a contact request to let us know. ERROR: ' + error)
+    console.log("ERROR WITH ADMIN FUNCTION UPDATE FEATURE: " + error)
+  }
+}
+const updatecoursesdata = async (req, res) => {
+  try {
+    const { courseId, courseTitle, courseDesc } = req.body;
+    const query = { id: courseId }
+    await coursesModel.findOneAndUpdate(query, { courseTitle: courseTitle, courseDesc: courseDesc })
+    res.redirect(process.env.ADMIN_UPDATE_PAGE)
+  }
+  catch (error) {
+    res.send('There was an error updating the course. Please send a contact request to let us know. ERROR: ' + error)
+    console.log("ERROR WITH ADMIN FUNCTION UPDATE COURSE: " + error)
+  }
 
-  let sql = "UPDATE `features` SET `nameOfFeature` = ?, `classValue` = ? WHERE `features`.`id` = ?;"
-  adminConnection.query(sql, [nameOfFeature, classValue, featureID], (error, result) => {
-    if (error) {
-      res.send("Unknown error updating data, contact Cole.")
-    }
-    else { res.redirect(process.env.ADMIN_UPDATE_PAGE) }
-  })
 }
-const updatecoursesdata = (req, res) => {
-  const { courseId, courseTitle, courseDesc } = req.body;
-
-  let sql = "UPDATE `courses` SET `courseTitle` = ?, `courseDesc` = ? WHERE `courses`.`id` = ?;"
-  adminConnection.query(sql, [courseTitle, courseDesc, courseId], (error, result) => {
-    if (error) {
-      res.send("Unknown error updating data, contact Cole.")
-    }
-    else { res.redirect(process.env.ADMIN_UPDATE_PAGE) }
-  })
-}
-const verifyClub = (req, res) => {
+const verifyClub = async (req, res) => {
   const { clubId } = req.body;
   if (clubId === null || clubId === undefined || clubId === "") {
-    res.redirect('admin')
+    res.redirect(process.env.ADMIN_UPDATE_PAGE)
   }
   else {
-    let sql = "SELECT * FROM unverifiedclubs WHERE `unverifiedclubs`.`id` = ?;"
-    adminConnection.query(sql, [clubId], (error, result) => {
-      if (error) {
-        res.send("Unknown error updating data, contact Cole.")
-        console.log(error)
-        return
-      }
-      const data = result[0]
-      const verifySQL = "INSERT INTO `clubs` (`id`, `clubName`, `clubOwnerName`, `clubDescription`, `ownerEmail`) VALUES (NULL, ?, ?, ?, ?);"
-      adminConnection.query(verifySQL, [data.clubName, data.clubOwnerName, data.clubDescription, data.ownerEmail], async (error, results) => {
-        if (error) {
-          res.send("Unknown error updating data, contact Cole.");
-          console.log(error)
-          return
-        }
-        const removeOldSQL = "DELETE FROM unverifiedclubs WHERE id = ?;"
-        adminConnection.query(removeOldSQL, [clubId], async (error, results) => {
-          if (error) {
-            res.send("Unknown error updating data, contact Cole.")
-            console.log(error)
-            return
-          }
-          const contents = `
-        <h1>Hello ${data.clubOwnerName}</h1>
-        <h3>Your club, ${data.clubName} has been accepted.</h3>
-
-        <br><br>
-        <h4>Other information:</h4>
-        <h4>Club description: ${data.clubDescription}</h4>
-        <h4>Owner email: ${data.ownerEmail}</h4>
-        `
-          const info = await transporter.sendMail({
-            from: `Ohio Chess Club <ohiochessclub@gmail.com>`,
-            to: data.ownerEmail,
-            subject: "Club Accepted",
-            html: contents,
-          });
-          res.redirect('admin')
-        })
+    try {
+      const unverifiedclubsQuery = { _id: clubId };
+      var unverifiedClub = await unverifiedclubsModel.find(unverifiedclubsQuery)
+      const data = unverifiedClub[0]
+      const club = new clubsModel({
+        clubName: data.clubName,
+        clubOwnerName: data.clubOwnerName,
+        clubDescription: data.clubDescription,
+        ownerEmail: data.ownerEmail
       })
-    })
+      await club.save();
+      unverifiedclubsModel.findOneAndDelete({ _id: clubId })
+      const contents = `
+    <h1>Hello ${data.clubOwnerName}</h1>
+    <h3>Your club, ${data.clubName} has been accepted.</h3>
+
+    <br><br>
+    <h4>Other information:</h4>
+    <h4>Club description: ${data.clubDescription}</h4>
+    <h4>Owner email: ${data.ownerEmail}</h4>
+    `
+      await transporter.sendMail({
+        from: `Ohio Chess Club <ohiochessclub@gmail.com>`,
+        to: data.ownerEmail,
+        subject: "Club Accepted",
+        html: contents,
+      });
+      res.redirect(process.env.ADMIN_UPDATE_PAGE)
+    }
+    catch (error) {
+      res.send('There was an error verifying the club. Please send a contact request to let us know. ERROR: ' + error)
+      console.log("ERROR WITH ADMIN FUNCTION VERIFY CLUB: " + error)
+    }
   }
 }
 
@@ -168,13 +153,17 @@ const markContactResolved = async (req, res) => {
     res.redirect('admin')
   }
   else {
-    const markResolvedQuery = "UPDATE `contactrequests` SET `isFulfilled` = 'y' WHERE `contactrequests`.`requestID` = ?;"
-    adminConnection.query(markResolvedQuery, [questionID], async (error, results) => {
-      if (error) {
-        res.send('There was an error, please contact Cole.')
+    try {
+      const query = {
+        _id: questionID
       }
-      res.redirect('admin')
-    })
+      await contactrequestsModel.findOneAndUpdate(query, { isFulfilled: "y" })
+      res.redirect(process.env.ADMIN_UPDATE_PAGE)
+    }
+    catch (error) {
+      res.send('There was an error marking the contact request resolved. Please send a contact request to let us know. ERROR: ' + error)
+      console.log("ERROR WITH ADMIN FUNCTION MARK CONTACT RESOLVED: " + error)
+    }
   }
 }
 
