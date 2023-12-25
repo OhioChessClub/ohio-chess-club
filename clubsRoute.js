@@ -1,7 +1,9 @@
 // LOAD DOTENV
 require('dotenv').config();
 
-
+const {
+  clubsModel
+} = require('./database')
 
 // LOAD BCRYPT
 const bcrypt = require('bcrypt')
@@ -37,18 +39,10 @@ function removeReturn(req, res) {
   req.session.loginReturnURL = null;
 }
 
-// LOAD MYSQL MODULES AND CONNECT TO DB
-
-const { adminConnection, connection } = require('./database');
-
-
 
 const viewClubsGet = async (req, res) => {
-  const query = "SELECT * FROM `clubs`";
-  adminConnection.query(query, async (error, results) => {
-    var clubs = results;
-    res.render('clubs', { clubs: clubs })
-  })
+  var clubs = await clubsModel.find()
+  res.render('clubs', { clubs: clubs })
 }
 
 
