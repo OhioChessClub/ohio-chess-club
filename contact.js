@@ -7,6 +7,9 @@ require('dotenv').config();
 const bcrypt = require('bcrypt')
 
 
+const {
+  contactrequestsModel
+} = require('./database')
 
 
 // LOAD EXPRESS AND DEFINE EXPRESS MODULES
@@ -36,11 +39,6 @@ function removeReturn(req, res) {
   req.session.loginReturnURL = null;
 }
 
-// LOAD MYSQL MODULES AND CONNECT TO DB
-const { adminConnection, connection } = require('./database');
-
-
-
 const contactPost = async (req, res) => {
   try {
     var formEnabled = false;
@@ -67,7 +65,7 @@ const contactPost = async (req, res) => {
 </div>
   `
 
-    const info = await transporter.sendMail({
+    await transporter.sendMail({
       from: `Ohio Chess Club <ohiochessclub@gmail.com>`,
       to: contactEmail,
       subject: "Your Question has Been Recieved",
@@ -98,14 +96,21 @@ function sendError(req, res, error){
 }
 
 function importIntoDatabase(contactName, contactEmail, contactText, isFulfilled, req, res){
-  const query = "INSERT INTO `contactrequests` (`email`, `name`, `question`, `isFulfilled`) VALUES (?, ?, ?, ?);"
-  adminConnection.query(query, [contactEmail, contactName, contactText, isFulfilled], (error, results) => {
+  try {
+  var contact = new contactrequestsModel({
+    email: contactEmail,
+    name: contactName,
+    question: contactText,
+    isFulfilled: isFulfilled
+  })
+  contact.save()
+  }
+  catch (error) {
     if(error){
       sendError(req, res, error)
       return;
     }
-
-  })
+  }
 }
 
 
