@@ -15,6 +15,10 @@ const authenticationGet = require('./authenticationGet');
 const clubs = require('./clubsRoute');
 const homeRoute = require('./homeRoute');
 const admin = require('./adminRoutes');
+const bodyParser = require('body-parser')
+const {
+  viewsModel
+} = require('./database')
 
 // DECLARE DESCRIPTION AND TITLE MAPS
 
@@ -103,7 +107,8 @@ app.use((req, res, next) => {
 })
 app.use(staticFiles)
 app.set('view engine', 'ejs')
-
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(nocache());
 
 // FALSE: WEBSITE IN "LOCKDOWN" COULD BE USED FOR BIG ISSUES OR NOT RELEASED YET
@@ -114,23 +119,18 @@ var isPublic = true;
 if (isPublic) {
   // FUNCTIONS
   async function updateViews(req, res) {
-    var query1 = "SELECT * FROM `views` WHERE id = 1"
-    adminConnection.query(query1, async (error, results) => {
-      if (error) {
-        console.log("Error adding to views.")
-      }
+    try {
+      var query1 = { id: 1 }
+      var results = await viewsModel.find(query1)
       var currentViews = results[0].totalViews;
       var newViews = currentViews + 1;
       var query2 = "UPDATE `views` SET `totalViews` = ? WHERE `views`.`id` = 1;"
-      adminConnection.query(query2, [newViews], async (error, results) => {
-        if (error) {
-          console.log("Error adding to views.")
-        }
-        else {
-          // Enter code if there is no error. I am leaving this blank for the moment.
-        }
-      })
-    })
+    }
+    catch (error) {
+      if (error) {
+        console.log("Error adding to views.")
+      }
+    }
   }
   function checkForAdmin(req, res, next) {
     if (req.session.loggedIn) {

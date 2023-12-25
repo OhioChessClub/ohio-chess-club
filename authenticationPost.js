@@ -101,7 +101,6 @@ const generateRandomSixDigitNumber = () => {
 };
 const registerPost = async (req, res) => {
   try {
-
     const { email, password, country, city, state, name } = req.body;
     var nullError = "Please make sure that you have entered your country and city."
     var noPassError = "Please enter a password."

@@ -14,7 +14,11 @@ app.use(session({
   saveUninitialized: true
 }))
 
-const { adminConnection, connection } = require('./database');
+const {
+  featuresModel,
+  titlesModel,
+  coursesModel
+} = require('./database')
 
 const homeRoute = async (req, res) => {
 
@@ -43,78 +47,56 @@ const homeRoute = async (req, res) => {
   let mainButtonText
 
   try {
-    const query = 'SELECT * FROM features;';
-    connection.query(query, async (error, results) => {
-      if (error) {
-        console.log(`Error getting posts: ${error}`);
-      } else {
-        feature1title = results[0].nameOfFeature;
-        feautre1fontawesome = results[0].classValue;
-        feature2title = results[1].nameOfFeature;
-        feautre2fontawesome = results[1].classValue;
-        feature3title = results[2].nameOfFeature;
-        feautre3fontawesome = results[2].classValue;
-      }
-
-      const titlequery = 'SELECT * FROM titles;';
-      connection.query(titlequery, async (error, results) => {
-        if (error) {
-          console.log(`Error getting titles: ${error}`)
-        } else {
-          featuretitle = results[0].valueOfTitle;
-          featuredesc = results[1].valueOfTitle;
-          coursestitle = results[2].valueOfTitle;
-          coursesdesc = results[3].valueOfTitle;
-          mainTitle = results[4].valueOfTitle;
-          mainDesc = results[5].valueOfTitle;
-          mainButtonText = results[6].valueOfTitle
-
-          const coursequery = `SELECT * FROM courses`
-          connection.query(coursequery, (error, results) => {
-            if (error) {
-              console.log(`Error getting titles: ${error}`)
-            }
-            else {
-              course1title = results[0].courseTitle;
-              course1description = results[0].courseDesc;
-              course2title = results[1].courseTitle;
-              course2description = results[1].courseDesc;
-              course3title = results[2].courseTitle;
-              course3description = results[2].courseDesc;
-              course4title = results[3].courseTitle;
-              course4description = results[3].courseDesc;
-              course5title = results[4].courseTitle;
-              course5description = results[4].courseDesc;
-              res.render('index', {
-                feature1title,
-                feature1fontawesome: feautre1fontawesome,
-                feature2title,
-                feature2fontawesome: feautre2fontawesome,
-                feature3title,
-                feature3fontawesome: feautre3fontawesome,
-                featuretitle,
-                featuredesc,
-                coursestitle,
-                coursesdesc,
-                course1title,
-                course1description,
-                course2title,
-                course2description,
-                course3title,
-                course3description,
-                course4title,
-                course4description,
-                course5title,
-                course5description,
-                mainTitle,
-                mainDesc,
-                mainButtonText
-              });
-            }
-          })
-
-        }
-      });
+    var featuresResults = await featuresModel.find();
+    feature1title = featuresResults[0].nameOfFeature;
+    feautre1fontawesome = featuresResults[0].classValue;
+    feature2title = featuresResults[1].nameOfFeature;
+    feautre2fontawesome = featuresResults[1].classValue;
+    feature3title = featuresResults[2].nameOfFeature;
+    feautre3fontawesome = featuresResults[2].classValue;
+    var titlesResults = await titlesModel.find()
+    featuretitle = titlesResults[0].valueOfTitle;
+    featuredesc = titlesResults[1].valueOfTitle;
+    coursestitle = titlesResults[2].valueOfTitle;
+    coursesdesc = titlesResults[3].valueOfTitle;
+    mainTitle = titlesResults[4].valueOfTitle;
+    mainDesc = titlesResults[5].valueOfTitle;
+    mainButtonText = titlesResults[6].valueOfTitle
+    var coursesResults = await coursesModel.find()
+    course1title = coursesResults[0].courseTitle;
+    course1description = coursesResults[0].courseDesc;
+    course2title = coursesResults[1].courseTitle;
+    course2description = coursesResults[1].courseDesc;
+    course3title = coursesResults[2].courseTitle;
+    course3description = coursesResults[2].courseDesc;
+    course4title = coursesResults[3].courseTitle;
+    course4description = coursesResults[3].courseDesc;
+    course5title = coursesResults[4].courseTitle;
+    course5description = coursesResults[4].courseDesc;
+    res.render('index', {
+      feature1title,
+      feature1fontawesome: feautre1fontawesome,
+      feature2title,
+      feature2fontawesome: feautre2fontawesome,
+      feature3title,
+      feature3fontawesome: feautre3fontawesome,
+      featuretitle,
+      featuredesc,
+      coursestitle,
+      coursesdesc,
+      course1title,
+      course1description,
+      course2title,
+      course2description,
+      course3title,
+      course3description,
+      course4title,
+      course4description,
+      course5title,
+      course5description,
+      mainTitle,
+      mainDesc,
+      mainButtonText
     });
   } catch (error) {
     console.error(error);
