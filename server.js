@@ -1,12 +1,90 @@
-// LOAD DOTENV
+// REQUIRE STATMENTS AND IMPORTS
 require('dotenv').config()
 const nocache = require('nocache');
-
-// LOAD AND DEFINE EXPRESS MoDULES
 const express = require('express');
 const app = express();
 const session = require('express-session')
 const ejs = require('ejs')
+const staticFiles = require('./staticFiles');
+const databaseHelper = require('./database');
+const authenticationPost = require('./authenticationPost');
+const adminUpdates = require('./adminUpdates');
+const clubManagment = require('./clubManagment');
+const contact = require('./contact');
+const authenticationGet = require('./authenticationGet');
+const clubs = require('./clubsRoute');
+const homeRoute = require('./homeRoute');
+const admin = require('./adminRoutes');
+
+// DECLARE DESCRIPTION AND TITLE MAPS
+
+const titleMap = {
+  // "viewFileName": "viewTItle"
+  "404": "404: Page not found",
+  "applyForClub": "Apply as Club Owner",
+  "beingReviewed": "Your club is being reviewed.",
+  "clubs": "Clubs",
+  "contact": "Contact",
+  "forgotPassword": "Reset your Password",
+  "index": "Ohio Chess Club",
+  "introductory-video-not-released": "Introductory Video",
+  "introductory-video": "Introductory Video",
+  "login": "Login",
+  "manageClub": "Manage your Club",
+  "manageClubUnverified": "Your club has not been verified",
+  "register": "Register",
+  "siteNotPublic": "Ohio Chess Club",
+  "verify": "Verify your Email"
+}
+
+const descMap = {
+  // "viewFileName": "viewTItle"
+  "404": "We cannot find this page on our servers.",
+  "applyForClub": "Apply to be a club owner on the Ohio Chess Club.",
+  "beingReviewed": "Your club you created is being reviewed for the Ohio Chess Club.",
+  "clubs": "View all the clubs on the Ohio Chess Club.",
+  "contact": "Contact the Ohio Chess Club.",
+  "forgotPassword": "Change your account's password on the Ohio CHess Club.",
+  "index": "The Ohio Chess club is the best completely free chess learning community.",
+  "introductory-video-not-released": "View the Introductory Video.",
+  "introductory-video": "View the Introductory Video.",
+  "login": "Login to the Ohio Chess Club",
+  "manageClub": "Manage your club on the Ohio Chess Club.",
+  "manageClubUnverified": "Manage your club on the Ohio Chess Club.",
+  "register": "Register an account for the Ohio Chess Club",
+  "siteNotPublic": "The Ohio Chess club is the best completely free chess learning community.",
+  "verify": "Verify your Email to Login to the Ohio Chess Club"
+}
+
+// DECLARE TITLE FINDING HELPER FUNCTIONS
+function getTitleFromFile() {
+  if (titleMap.hasOwnProperty(fileName)) {
+    return titleMap[fileName]
+  }
+  else {
+    return "File's title does not exist."
+  }
+}
+function getDescFromFile() {
+  if (descMap.hasOwnProperty(fileName)) {
+    return descMap[fileName]
+  }
+  else {
+    return "File's title does not exist."
+  }
+}
+
+// Example of Getting Title from File Name:
+// var fileName = "login"
+// var test = getTitleFromFile(fileName)
+// console.log(test)
+
+// Example of Getting Desc from File Name:
+// var fileName = "login"
+// var test = getDescFromFile(fileName)
+// console.log(test)
+
+// DECLARE NESSESARY VARIABLES AND CONFIG EXPRESS AS NEEDED
 
 app.use(session({
   secret: 'WEqwewqewq4F5WEQWEFQW',
@@ -14,34 +92,46 @@ app.use(session({
   saveUninitialized: false,
 }));
 
-  app.use((req, res, next) => {
-    res.locals.session = req.session;
-    next();
-  });
+app.use((req, res, next) => {
+  res.locals.session = req.session;
+  next();
+});
 
 app.use((req, res, next) => {
   res.set('Cache-Control', 'no-store')
   next()
 })
+app.use(staticFiles)
+app.set('view engine', 'ejs')
+
+const connection = databaseHelper.connection;
+const adminConnection = databaseHelper.adminConnection;
+connection.on('error', (err) => {
+  console.error('MySQL connection error:', err);
+  connection.connect((connectErr) => {
+    if (connectErr) {
+      console.error('MySQL reconnection error:', connectErr);
+    } else {
+      console.log('Reconnected to MySQL server');
+    }
+  });
+  adminConnection.connect((connectErr) => {
+    if (connectErr) {
+      console.error('MySQL reconnection error:', connectErr);
+    } else {
+      console.log('Reconnected to MySQL server');
+    }
+  });
+});
+app.use(nocache());
 
 // FALSE: WEBSITE IN "LOCKDOWN" COULD BE USED FOR BIG ISSUES OR NOT RELEASED YET
 // TRUE: WESITE FUNCTIONS LIKE NORMAL
 var isPublic = true;
 
 
-const staticFiles = require('./staticFiles');
-app.use(staticFiles)
-app.set('view engine', 'ejs')
-
-
-
-const databaseHelper = require('./database');
-const connection = databaseHelper.connection;
-const adminConnection = databaseHelper.adminConnection;
-app.use(nocache());
-
 if (isPublic) {
-
+  // FUNCTIONS
   async function updateViews(req, res) {
     var query1 = "SELECT * FROM `views` WHERE id = 1"
     adminConnection.query(query1, async (error, results) => {
@@ -61,14 +151,101 @@ if (isPublic) {
       })
     })
   }
+  function checkForAdmin(req, res, next) {
+    if (req.session.loggedIn) {
+      if (req.session.email === process.env.adminEmail) {
+        return 'Authorized';
+      }
+    }
+    else {
+      return 'Unauthorized'
+    }
+  }
 
-  const authenticationPost = require('./authenticationPost');
+  // POST REQUESTS
   app.post('/register', authenticationPost.registerPost);
   app.post('/login', authenticationPost.loginPost);
   app.post('/verify', authenticationPost.verifyPost);
   app.post('/forgotpasswordpost', authenticationPost.forgotPasswordPost);
+  app.post('/updatefeaturetitleanddesc', (req, res) => {
+    var isAuthorized = checkForAdmin(req, res);
+    if (isAuthorized === 'Authorized') {
+      adminUpdates.updatefeaturetitleanddesc(req, res)
+    }
+    else {
+      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
+    }
+  })
+  app.post('/updatecoursestitleanddesc', (req, res) => {
+    var isAuthorized = checkForAdmin(req, res);
+    if (isAuthorized === 'Authorized') {
+      adminUpdates.updatecoursestitleanddesc(req, res)
+    }
+    else {
+      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
+    }
+  })
+  app.post('/updatemaintitleanddesc', (req, res) => {
+    var isAuthorized = checkForAdmin(req, res);
+    if (isAuthorized === 'Authorized') {
+      adminUpdates.updatemaintitleanddesc(req, res)
+    }
+    else {
+      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
+    }
+  })
+  app.post('/updatemainbuttontext', (req, res) => {
+    var isAuthorized = checkForAdmin(req, res);
+    if (isAuthorized === 'Authorized') {
+      adminUpdates.updatemainbuttontext(req, res)
+    }
+    else {
+      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
+    }
+  })
+  app.post('/updatefeaturedata', (req, res) => {
+    var isAuthorized = checkForAdmin(req, res);
+    if (isAuthorized === 'Authorized') {
+      adminUpdates.updatefeaturedata(req, res)
+    }
+    else {
+      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
+    }
+  })
+  app.post('/updatecoursesdata', (req, res) => {
+    var isAuthorized = checkForAdmin(req, res);
+    if (isAuthorized === 'Authorized') {
+      adminUpdates.updatecoursesdata(req, res)
+    }
+    else {
+      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
+    }
+  })
+  app.post('/fulfillQuestion', (req, res) => {
+    var isAuthorized = checkForAdmin(req, res);
+    if (isAuthorized === 'Authorized') {
+      adminUpdates.markContactResolved(req, res)
+    }
+    else {
+      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
+    }
+  })
+  app.post('/verifyClub', (req, res) => {
+    var isAuthorized = checkForAdmin(req, res);
+    if (isAuthorized === 'Authorized') {
+      adminUpdates.verifyClub(req, res)
+    }
+    else {
+      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
+    }
+  })
+  app.post('/apply', clubManagment.createClubPost);
+  app.post('/updateBasicInfo', clubManagment.updateInfoPost);
+  app.post('/grantClubAccess', clubManagment.addOwnerEmail);
+  app.post('/removeClubAccess', clubManagment.removeOwnerEmail);
+  app.post('/contact', contact.contactPost)
 
-  const authenticationGet = require('./authenticationGet');
+  // GET REQUESTS
   app.get('/register', async (req, res) => {
     await updateViews();
     authenticationGet.registerGet(req, res)
@@ -81,19 +258,14 @@ if (isPublic) {
     await updateViews();
     authenticationGet.verifyGet(req, res)
   });
-
-  const clubs = require('./clubsRoute');
   app.get('/clubs', async (req, res) => {
     await updateViews();
     clubs.viewClubsGet(req, res)
   });
-
-  const homeRoute = require('./homeRoute');
   app.get('/', async (req, res) => {
     await updateViews();
     homeRoute.homeRoute(req, res)
   });
-
   app.get('/introductory-video', (req, res) => {
     var isAdmin = checkForAdmin(req, res);
     if (isAdmin === 'Authorized') {
@@ -103,109 +275,6 @@ if (isPublic) {
       res.render('introductory-video-not-released')
     }
   })
-
-  function checkForAdmin(req, res, next) {
-    if (req.session.loggedIn) {
-      if (req.session.email === process.env.adminEmail) {
-        return 'Authorized';
-      }
-    }
-    else {
-      return 'Unauthorized'
-    }
-  }
-
-  const adminUpdates = require('./adminUpdates');
-  // app.post('/updatefeaturetitleanddesc', checkForAdmin, adminUpdates.updatefeaturetitleanddesc);
-  app.post('/updatefeaturetitleanddesc', (req, res) => {
-    var isAuthorized = checkForAdmin(req, res);
-    if (isAuthorized === 'Authorized') {
-      adminUpdates.updatefeaturetitleanddesc(req, res)
-    }
-    else {
-      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
-    }
-  })
-
-  // app.post('/updatecoursestitleanddesc', checkForAdmin, adminUpdates.updatecoursestitleanddesc);
-  app.post('/updatecoursestitleanddesc', (req, res) => {
-    var isAuthorized = checkForAdmin(req, res);
-    if (isAuthorized === 'Authorized') {
-      adminUpdates.updatecoursestitleanddesc(req, res)
-    }
-    else {
-      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
-    }
-  })
-
-  // app.post('/updatemaintitleanddesc', checkForAdmin, adminUpdates.updatemaintitleanddesc);
-  app.post('/updatemaintitleanddesc', (req, res) => {
-    var isAuthorized = checkForAdmin(req, res);
-    if (isAuthorized === 'Authorized') {
-      adminUpdates.updatemaintitleanddesc(req, res)
-    }
-    else {
-      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
-    }
-  })
-
-  // app.post('/updatemainbuttontext', checkForAdmin, adminUpdates.updatemainbuttontext);
-  app.post('/updatemainbuttontext', (req, res) => {
-    var isAuthorized = checkForAdmin(req, res);
-    if (isAuthorized === 'Authorized') {
-      adminUpdates.updatemainbuttontext(req, res)
-    }
-    else {
-      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
-    }
-  })
-
-  // app.post('/updatefeaturedata', checkForAdmin, adminUpdates.updatefeaturedata);
-  app.post('/updatefeaturedata', (req, res) => {
-    var isAuthorized = checkForAdmin(req, res);
-    if (isAuthorized === 'Authorized') {
-      adminUpdates.updatefeaturedata(req, res)
-    }
-    else {
-      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
-    }
-  })
-
-  // app.post('/updatecoursesdata', checkForAdmin, adminUpdates.updatecoursesdata);
-  app.post('/updatecoursesdata', (req, res) => {
-    var isAuthorized = checkForAdmin(req, res);
-    if (isAuthorized === 'Authorized') {
-      adminUpdates.updatecoursesdata(req, res)
-    }
-    else {
-      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
-    }
-  })
-
-  app.post('/fulfillQuestion', (req, res) => {
-    var isAuthorized = checkForAdmin(req, res);
-    if (isAuthorized === 'Authorized') {
-      adminUpdates.markContactResolved(req, res)
-    }
-    else {
-      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
-    }
-  })
-
-  // app.post('/verifyClub', checkForAdmin, adminUpdates.verifyClub);
-  app.post('/verifyClub', (req, res) => {
-    var isAuthorized = checkForAdmin(req, res);
-    if (isAuthorized === 'Authorized') {
-      adminUpdates.verifyClub(req, res)
-    }
-    else {
-      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
-    }
-  })
-
-
-  const clubManagment = require('./clubManagment');
-  app.post('/apply', clubManagment.createClubPost);
   app.get('/apply', async (req, res) => {
     await updateViews();
     clubManagment.clubApplyGet(req, res)
@@ -218,14 +287,6 @@ if (isPublic) {
     await updateViews();
     clubManagment.clubManageGet(req, res)
   });
-  app.post('/updateBasicInfo', clubManagment.updateInfoPost);
-  app.post('/grantClubAccess', clubManagment.addOwnerEmail);
-  app.post('/removeClubAccess', clubManagment.removeOwnerEmail);
-
-  const contact = require('./contact');
-  app.post('/contact', contact.contactPost)
-
-  const admin = require('./adminRoutes');
   app.get('/admin', async (req, res) => {
     var isAuthorized = checkForAdmin(req, res);
     if (isAuthorized === 'Authorized') {
@@ -236,61 +297,28 @@ if (isPublic) {
       res.status(404).render('404')
     }
   })
-
   app.get('/contact', async (req, res) => {
     await updateViews(req, res);
     res.render('contact')
   })
-
-
-
-  connection.on('error', (err) => {
-    console.error('MySQL connection error:', err);
-    connection.connect((connectErr) => {
-      if (connectErr) {
-        console.error('MySQL reconnection error:', connectErr);
-      } else {
-        console.log('Reconnected to MySQL server');
-      }
-    });
-    adminConnection.connect((connectErr) => {
-      if (connectErr) {
-        console.error('MySQL reconnection error:', connectErr);
-      } else {
-        console.log('Reconnected to MySQL server');
-      }
-    });
-  });
-
-
-
-
-
   app.get('/sitemap.xml', (req, res) => {
     res.sendFile('C:\\Users\\colew\\OneDrive\\Documents\\dev-projects\\server\\sitemap.xml')
   })
-
   app.get('/socketScript', (req, res) => {
     res.sendFile('C:\\Users\\colew\\OneDrive\\Documents\\dev-projects\\server\\socket.js')
   })
-
   app.get('/chessScript', (req, res) => {
     res.sendFile('C:\\Users\\colew\\OneDrive\\Documents\\dev-projects\\server\\chess.js')
   })
-
-
   app.get('/chess', (req, res) => {
     res.render('chess')
   })
-
   app.get('/reconnectToDatabase', (req, res) => {
     console.log(databaseHelper)
     res.render('reconnect', {
       databaseHelper
     })
   })
-  
-
   app.use(async (req, res) => {
     await updateViews()
     res.status(404).render('404.ejs');
@@ -302,7 +330,7 @@ else if (isPublic === false) {
   });
   app.get('/css/allFrontend.css', (req, res) => {
     res.sendFile('C:\\Users\\colew\\OneDrive\\Documents\\server\\views\\allFrontend.css');
-  })  
+  })
   app.use(async (req, res) => {
     // res.status(404).render('404.ejs');
     res.redirect('/')
