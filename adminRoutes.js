@@ -2,7 +2,14 @@
 require('dotenv').config();
 
 // LOAD MYSQL MODULES AND CONNECT TO DB
-const { adminConnection, connection } = require('./database')
+const { 
+  featuresModel,
+  titlesModel,
+  coursesModel,
+  unverifiedclubsModel,
+  contactrequestsModel,
+  viewsModel
+} = require('./database')
 
 let feature1title;
 let feautre1fontawesome;
@@ -33,104 +40,64 @@ let totalViews;
 
 const admin = async (req, res) => {
   try {
-    const query = 'SELECT * FROM features;';
-
-    await adminConnection.query(query, async (error, results) => {
-      if (error) {
-        console.log(`Error getting posts: ${error}`);
-      } else {
-        feature1title = results[0].nameOfFeature;
-        feautre1fontawesome = results[0].classValue;
-        feature2title = results[1].nameOfFeature;
-        feautre2fontawesome = results[1].classValue;
-        feature3title = results[2].nameOfFeature;
-        feautre3fontawesome = results[2].classValue;
-
-        // Start #2
-
-        const titlequery = 'SELECT * FROM titles;';
-        await adminConnection.query(titlequery, async (error, results) => {
-          featuretitle = results[0].valueOfTitle;
-          featuredesc = results[1].valueOfTitle;
-          coursestitle = results[2].valueOfTitle;
-          coursesdesc = results[3].valueOfTitle;
-          mainTitle = results[4].valueOfTitle;
-          mainDesc = results[5].valueOfTitle;
-          mainButtonText = results[6].valueOfTitle;
-
-
-
-          const getCoursesSQL = `SELECT * FROM courses`
-          await adminConnection.query(getCoursesSQL, async (error, results) => {
-            course1title = results[0].courseTitle
-            course1description = results[0].courseDesc
-            course2title = results[1].courseTitle
-            course2description = results[1].courseDesc
-            course3title = results[2].courseTitle
-            course3description = results[2].courseDesc
-            course4title = results[3].courseTitle
-            course4description = results[3].courseDesc
-            course5title = results[4].courseTitle
-            course5description = results[4].courseDesc
-            // const course6title = results[5].courseTitle
-            // const course6description = results[5].courseDesc
-
-
-            const getUnverifiedClub = "SELECT * FROM `unverifiedclubs`";
-            await adminConnection.query(getUnverifiedClub, async (error, results) => {
-              if (error) {
-                console.log(`Error getting clubs: ${error}`)
-              }
-              clubs = results;
-
-
-              const getContactRequestsQuery = "SELECT * FROM contactrequests WHERE isFulfilled = 'n'";
-
-              await adminConnection.query(getContactRequestsQuery, async (error, results) => {
-                contactRequests = results;
-
-                var getViewCount = "SELECT * FROM `views` WHERE id = 1"
-                await adminConnection.query(getViewCount, async (error, results) => {
-                  totalViews = results[0].totalViews;
-                  res.render(process.env.ADMIN_UPDATE_PAGE, {
-                    feature1title,
-                    feature1fontawesome: feautre1fontawesome,
-                    feature2title,
-                    feature2fontawesome: feautre2fontawesome,
-                    feature3title,
-                    feature3fontawesome: feautre3fontawesome,
-                    featuretitle,
-                    featuredesc,
-                    coursestitle,
-                    coursesdesc,
-                    course1title,
-                    course1description,
-                    course2title,
-                    course2description,
-                    course3title,
-                    course3description,
-                    course4title,
-                    course4description,
-                    course5title,
-                    course5description,
-                    mainTitle,
-                    mainDesc,
-                    mainButtonText,
-                    clubs,
-                    contactRequests,
-                    totalViews
-                    // course6title,
-                    // course6description
-                  });
-                })
-
-
-              })
-            })
-          })
-        });
-      }
-    })
+    var featuresResults = await featuresModel.find();
+    feature1title = featuresResults[0].nameOfFeature;
+    feautre1fontawesome = featuresResults[0].classValue;
+    feature2title = featuresResults[1].nameOfFeature;
+    feautre2fontawesome = featuresResults[1].classValue;
+    feature3title = featuresResults[2].nameOfFeature;
+    feautre3fontawesome = featuresResults[2].classValue;
+    var titlesResults = await titlesModel.find();
+    featuretitle = titlesResults[0].valueOfTitle;
+    featuredesc = titlesResults[1].valueOfTitle;
+    coursestitle = titlesResults[2].valueOfTitle;
+    coursesdesc = titlesResults[3].valueOfTitle;
+    mainTitle = titlesResults[4].valueOfTitle;
+    mainDesc = titlesResults[5].valueOfTitle;
+    mainButtonText = titlesResults[6].valueOfTitle;
+    var coursesResults = await coursesModel.find();
+    course1title = coursesResults[0].courseTitle
+    course1description = coursesResults[0].courseDesc
+    course2title = coursesResults[1].courseTitle
+    course2description = coursesResults[1].courseDesc
+    course3title = coursesResults[2].courseTitle
+    course3description = coursesResults[2].courseDesc
+    course4title = coursesResults[3].courseTitle
+    course4description = coursesResults[3].courseDesc
+    course5title = coursesResults[4].courseTitle
+    course5description = coursesResults[4].courseDesc
+    clubs = await unverifiedclubsModel.find();
+    contactRequests = await contactrequestsModel.find();
+    var viewsResults = await viewsModel.find();
+    totalViews = viewsResults[0].totalViews;
+    res.render(process.env.ADMIN_UPDATE_PAGE, {
+      feature1title,
+      feature1fontawesome: feautre1fontawesome,
+      feature2title,
+      feature2fontawesome: feautre2fontawesome,
+      feature3title,
+      feature3fontawesome: feautre3fontawesome,
+      featuretitle,
+      featuredesc,
+      coursestitle,
+      coursesdesc,
+      course1title,
+      course1description,
+      course2title,
+      course2description,
+      course3title,
+      course3description,
+      course4title,
+      course4description,
+      course5title,
+      course5description,
+      mainTitle,
+      mainDesc,
+      mainButtonText,
+      clubs,
+      contactRequests,
+      totalViews
+    });
 
 
   } catch (error) {

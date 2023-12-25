@@ -62,7 +62,7 @@ function getTitleFromFile(fileName) {
     return titleMap[fileName]
   }
   else {
-    return "File's title does not exist."
+    return "Non-Existant"
   }
 }
 function getDescFromFile(fileName) {
@@ -70,7 +70,7 @@ function getDescFromFile(fileName) {
     return descMap[fileName]
   }
   else {
-    return "File's title does not exist."
+    return "Non-Existant"
   }
 }
 
@@ -104,25 +104,6 @@ app.use((req, res, next) => {
 app.use(staticFiles)
 app.set('view engine', 'ejs')
 
-const connection = databaseHelper.connection;
-const adminConnection = databaseHelper.adminConnection;
-connection.on('error', (err) => {
-  console.error('MySQL connection error:', err);
-  connection.connect((connectErr) => {
-    if (connectErr) {
-      console.error('MySQL reconnection error:', connectErr);
-    } else {
-      console.log('Reconnected to MySQL server');
-    }
-  });
-  adminConnection.connect((connectErr) => {
-    if (connectErr) {
-      console.error('MySQL reconnection error:', connectErr);
-    } else {
-      console.log('Reconnected to MySQL server');
-    }
-  });
-});
 app.use(nocache());
 
 // FALSE: WEBSITE IN "LOCKDOWN" COULD BE USED FOR BIG ISSUES OR NOT RELEASED YET
@@ -161,6 +142,12 @@ if (isPublic) {
       return 'Unauthorized'
     }
   }
+  (async () => {
+    const isConnected = await databaseHelper.connect();
+    if (isConnected === "Connected") {
+      console.log("Server file has confirmed that database has connected.");
+    }
+  })()
 
   // POST REQUESTS
   app.post('/register', authenticationPost.registerPost);
@@ -340,7 +327,7 @@ else {
   console.log("Error Starting Application. isPublic incorrectly defined. Correct values: true; false || Boolean... not a string.")
 }
 
-const port = 80;
+const port = 3000;
 // const port = 80;
 app.listen(port)
 console.log(`Listening on port: ${port}`)
