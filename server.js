@@ -228,8 +228,6 @@ if (isPublic) {
   })
   app.post('/apply', clubManagment.createClubPost);
   app.post('/updateBasicInfo', clubManagment.updateInfoPost);
-  app.post('/grantClubAccess', clubManagment.addOwnerEmail);
-  app.post('/removeClubAccess', clubManagment.removeOwnerEmail);
   app.post('/contact', contact.contactPost)
 
   // GET REQUESTS

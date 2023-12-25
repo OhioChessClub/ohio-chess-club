@@ -37,59 +37,59 @@ function removeReturn(req, res) {
   req.session.loginReturnURL = null;
 }
 
-// LOAD MYSQL MODULES AND CONNECT TO DB
-const { adminConnection, connection } = require('./database')
-
+const {
+  usersModel,
+  unverifiedclubsModel,
+  clubsModel
+} = require('./database')
 
 
 function applyRes(req, res) {
   req.session.loginReturnURL = `/apply`;
 }
-let isAccessTrue;
-function checkAccess(req, res) {
-  return new Promise((resolve, reject) => {
-    const query = "SELECT * FROM `clubs` WHERE FIND_IN_SET(?, ownerEmail) > 0;";
+async function checkAccess(req, res) {
+  try {
+    const query = { email: req.session.email }
+    const results = await usersModel.find(query)
+    if (results.length > 0) {
+      return true
+    } else {
+      return false
+    }
+  }
+  catch (error) {
+    if (error) {
+      console.log(error);
+      reject(error);
+    }
+  }
 
-    connection.query(query, [req.session.email], (error, results) => {
-      if (error) {
-        console.log(error);
-        reject(error);
-      } else if (results.length > 0) {
-        resolve(true);
-      } else {
-        resolve(false);
-      }
-    });
-  });
 }
 
 const createClubPost = async (req, res) => {
   var publiclyAvaliable = false;
-  
-  if(publiclyAvaliable === true){
 
-  await checkUserFile.checkForUser(req, res);
+  if (publiclyAvaliable === true) {
+    try {
 
-  const { clubName, clubOwnerName, clubDescription } = req.body;
-  const ownerEmail = req.session.email;
-  if (ownerEmail === null || ownerEmail === undefined) {
-    res.redirect('login');
-    return;
-  }
+      await checkUserFile.checkForUser(req, res);
 
+      const { clubName, clubOwnerName, clubDescription } = req.body;
+      const ownerEmail = req.session.email;
+      if (ownerEmail === null || ownerEmail === undefined) {
+        res.redirect('login');
+        return;
+      }
 
+      const club = new unverifiedclubsModel({
+        clubName: clubName,
+        clubOwnerName: clubOwnerName,
+        clubDescription: clubDescription,
+        ownerEmail: ownerEmail
+      })
+      club.save();
 
-  const query = "INSERT INTO `unverifiedclubs` (`clubName`, `clubOwnerName`, `clubDescription`, `ownerEmail`) VALUES (?, ?, ?, ?);"
-  adminConnection.query(query, [clubName, clubOwnerName, clubDescription, ownerEmail], async (error, results) => {
-    if (error) {
-      console.log(error)
-    }
-    res.redirect('club-created')
-  })
-
-
-
-  const contents = `
+      const contents = `
     <h1>Hi, ${clubOwnerName}</h1>
     <h2>Your club, ${clubName} is being reviewed.</h2>
     <br><br>
@@ -97,16 +97,19 @@ const createClubPost = async (req, res) => {
     <h4>Club Description: ${clubDescription}</h4>
     <h4>Owner email: ${ownerEmail}</h4>
     `
-  const info = await transporter.sendMail({
-    from: `Ohio Chess Club <ohiochessclub@gmail.com>`,
-    to: ownerEmail,
-    subject: "Club is being reviewed",
-    html: contents,
-  });
-
-} else {
-  res.render('applyForClub', {actionError: "Creating clubs is not avaliable to the public at this time."})
-}
+      await transporter.sendMail({
+        from: `Ohio Chess Club <ohiochessclub@gmail.com>`,
+        to: ownerEmail,
+        subject: "Club is being reviewed",
+        html: contents,
+      });
+    }
+    catch (error) {
+      res.render('applyForClub', { actionError: "There was an error creating your club. Feel free to contact us for help. Error: " + error })
+    }
+  } else {
+    res.render('applyForClub', { actionError: "Creating clubs is not avaliable to the public at this time." })
+  }
 }
 
 const clubApplyGet = async (req, res) => {
@@ -119,61 +122,60 @@ const clubApplyGet = async (req, res) => {
     }
   }
   else {
-    const query = "SELECT * FROM `unverifiedclubs` WHERE `ownerEmail` = ?;"
-    connection.query(query, [req.session.email], async (error, results) => {
-      if (error) {
-        res.render('applyForClub', { clubActive: "error" })
-        return;
-      }
+    try {
+      const query = { email: req.session.email }
+      var results = await unverifiedclubsModel.find(query)
       if (results[0] != undefined || results[0] != null) {
         res.redirect('manage-club')
       }
       if (results[0] === undefined || results[0] === null) {
         if (results[0] === undefined || results[0] === null) {
-          const query = "SELECT * FROM `clubs` WHERE FIND_IN_SET(?, ownerEmail) > 0;";
-
-          await connection.query(query, [req.session.email], (error, results) => {
-            if (error) {
-              res.send('Unknown error, contact Cole or support.');
-              console.log(error);
-            } else if (results.length > 0) {
-              res.redirect('/manage-club');
-            } else {
-              res.render('applyForClub', { clubActive: false });
-            }
-          });
-
+          const query = { ownerEmail: req.session.email }
+          var results = await clubsModel.find(query)
+          if (results.length > 0) {
+            res.redirect('/manage-club');
+          } else {
+            res.render('applyForClub', { clubActive: false });
+          }
         }
       }
-    })
+    }
+    catch (error) {
+      if (error) {
+        res.render('applyForClub', { clubActive: "error" })
+        return;
+      }
+    }
   }
 }
 
 const clubCreatedGet = async (req, res) => {
-  if (!req.session.loggedIn) {
-    await applyRes(req, res);
-    await checkUserFile.checkForUser(req, res);
+  try {
+    if (!req.session.loggedIn) {
+      await applyRes(req, res);
+      await checkUserFile.checkForUser(req, res);
 
-    if (res.headersSent) {
-      res.render('login');
-    }
-  }
-  else {
-    const query = "SELECT * FROM `unverifiedclubs` WHERE `ownerEmail` = ?;"
-    connection.query(query, [req.session.email], (error, results) => {
-      if (error) {
-        res.redirect('/')
-        console.log("CLUB CREATED ERROR")
+      if (res.headersSent) {
+        res.render('login');
       }
+    }
+    else {
+      const query = { ownerEmail: req.session.email }
+      const results = await unverifiedclubsModel.find(query)
       if (results[0] != undefined || results[0] != null) {
         res.render('beingReviewed')
       }
       if (results[0] === undefined || results[0] === null) {
         res.redirect('/')
         console.log("CLUB CREATED ERROR")
-
       }
-    })
+    }
+  }
+  catch (error) {
+    if (error) {
+      res.redirect('/')
+      console.log("CLUB CREATED ERROR")
+    }
   }
 };
 
@@ -192,193 +194,82 @@ const clubManageGet = async (req, res) => {
     }
   }
   else {
-    const query = "SELECT * FROM `unverifiedclubs` WHERE `ownerEmail` = ?;"
-    await connection.query(query, [req.session.email], async (error, results) => {
+    try {
+      const query = { ownerEmail: req.session.email }
+      var results = await unverifiedclubsModel.find(query);
+      if (results[0] != undefined || results[0] != null || results[0] === "") {
+        res.render('manageClubUnverified')
+      }
+      else if (results[0] === undefined || results[0] === null || results[0] === "") {
+        const query = { ownerEmail: req.session.email }
+        var results = await clubsModel.find(query)
+        if (results.length > 0) {
+          let emailUsed = false;
+          if (req.session.errorEmailUsed === true) {
+            emailUsed = true;
+          }
+          await removeEmailError(req, res);
+          res.render('manageClub', {
+            clubName: results[0].clubName,
+            clubOwnerName: results[0].clubOwnerName,
+            clubDescription: results[0].clubDescription,
+            ownerEmail: results[0].ownerEmail,
+            emailUsed: emailUsed
+          });
+        } else {
+          res.redirect('/apply');
+        }
+
+      }
+      await connection.query(query, [req.session.email], async (error, results) => {
+
+      })
+    }
+    catch (error) {
       if (error) {
         res.redirect('/')
         console.log(error)
       }
-      else if (results[0] != undefined || results[0] != null || results[0] === "") {
-        res.render('manageClubUnverified')
-      }
-      else if (results[0] === undefined || results[0] === null || results[0] === "") {
-        const query = "SELECT * FROM `clubs` WHERE FIND_IN_SET(?, ownerEmail) > 0";
-        const emailList = req.session.email.split(",").map(email => email.trim());
-
-        await connection.query(query, [emailList[0]], async (error, results) => {
-          if (error) {
-            res.send('Unknown error, contact Cole or support.');
-          } else if (results.length > 0) {
-            let emailUsed = false;
-            if (req.session.errorEmailUsed === true) {
-              emailUsed = true;
-            }
-            await removeEmailError(req, res);
-            res.render('manageClub', {
-              clubName: results[0].clubName,
-              clubOwnerName: results[0].clubOwnerName,
-              clubDescription: results[0].clubDescription,
-              ownerEmail: results[0].ownerEmail,
-              emailUsed: emailUsed
-            });
-          } else {
-            res.redirect('/apply');
-          }
-        });
-
-      }
-    })
+    }
   }
 };
 
 const updateInfoPost = async (req, res) => {
-  const { clubName, clubOwnerName, clubDescription } = req.body;
-  const ownerEmail = req.session.email;
-  if (!req.session.loggedIn) {
-    await applyRes(req, res);
-    await checkUserFile.checkForUser(req, res);
+  try {
+    const { clubName, clubOwnerName, clubDescription } = req.body;
+    if (!req.session.loggedIn) {
+      await applyRes(req, res);
+      await checkUserFile.checkForUser(req, res);
 
-    if (res.headersSent) {
-      res.render('login');
+      if (res.headersSent) {
+        res.render('login');
+      }
+    }
+    else {
+      const query = { ownerEmail: req.session.email };
+      var results = await clubsModel.find(query)
+      if (results.length > 0) {
+        const query = { ownerEmail: req.session.email } 
+        await clubsModel.findOneAndUpdate(query, {
+          clubName: clubName,
+          clubOwnerName: clubOwnerName,
+          clubDescription: clubDescription
+        })
+        res.redirect('manage-club')
+      }
     }
   }
-  else {
-
-    const query = "SELECT * FROM `clubs` WHERE FIND_IN_SET(?, ownerEmail) > 0";
-    const emailList = req.session.email.split(",").map(email => email.trim());
-
-    await connection.query(query, [emailList[0]], async (error, results) => {
-      if (error) {
-        res.send('Unknown error, contact Cole or support.');
-        console.log(error);
-      } else if (results.length > 0) {
-        const updateQuery = "UPDATE `clubs` SET `clubName` = ?, `clubOwnerName` = ?, `clubDescription` = ? WHERE ownerEmail LIKE CONCAT('%', ?, '%') LIMIT 1;";
-        adminConnection.query(updateQuery, [clubName, clubOwnerName, clubDescription, ownerEmail], (error, results) => {
-          if (error) {
-            res.send('Unknown error, contact Cole or support.');
-            console.log(error);
-          } else {
-
-            res.redirect('manage-club')
-          }
-        });
-      }
-    });
-
+  catch (error) {
+    if (error) {
+      res.send('Unknown error, contact Cole or support.');
+      console.log(error);
+    }
   }
 }
 
 function emailUsedError(req, res) {
   req.session.errorEmailUsed = true;
 }
-
-const addOwnerEmail = async (req, res) => {
-  await checkUserFile.checkForUser(req, res);
-
-  const { newEmail } = req.body;
-  const ownerEmail = req.session.email;
-  if (ownerEmail === null || ownerEmail === undefined) {
-    res.redirect('login');
-    return;
-  }
-
-  try {
-    const isAccessTrue = await checkAccess(req, res);
-
-    if (isAccessTrue) {
-      const checkQuery = "SELECT COUNT(*) AS emailCount FROM `clubs` WHERE ownerEmail LIKE CONCAT('%', ?, '%');";
-      adminConnection.query(checkQuery, [newEmail], async (error, results) => {
-        if (error) {
-          res.send('Unknown error, contact Cole or support.');
-          console.log(error);
-        } else {
-          const emailCount = results[0].emailCount;
-          if (emailCount > 0) {
-            await emailUsedError(req, res);
-            res.redirect('manage-club');
-            return;
-          } else {
-            const selectQuery = "SELECT ownerEmail FROM `clubs` WHERE ownerEmail LIKE CONCAT('%', ?, '%') LIMIT 1;";
-            adminConnection.query(selectQuery, [ownerEmail], (error, results) => {
-              if (error) {
-                res.send('Unknown error, contact Cole or support.');
-                console.log(error);
-               } else {
-                const existingEmails = results[0].ownerEmail.split(',').map(email => email.trim());
-                const updatedEmails = existingEmails.concat(newEmail);
-                const updatedEmailsStr = updatedEmails.join(',');
-
-                const updateQuery = "UPDATE `clubs` SET `ownerEmail` = ? WHERE ownerEmail LIKE CONCAT('%', ?, '%');";
-                adminConnection.query(updateQuery, [updatedEmailsStr, ownerEmail], (error, results) => {
-                  if (error) {
-                    res.send('Unknown error, contact Cole or support.');
-                    console.log(error);
-                  } else {
-                    res.redirect('manage-club');
-                  }
-                });
-              }
-            });
-          }
-        }
-      });
-    } else {
-      res.send("Access denied error.");
-    }
-  } catch (error) {
-    res.send('Unknown error, contact Cole or support.');
-    console.log(error);
-  }
-};
-
-
-const removeOwnerEmail = async (req, res) => {
-  await checkUserFile.checkForUser(req, res);
-
-  const { newEmail } = req.body;
-  const ownerEmail = req.session.email;
-  if (ownerEmail === null || ownerEmail === undefined) {
-    res.redirect('login');
-    return;
-  }
-
-  try {
-    const isAccessTrue = await checkAccess(req, res);
-
-    if (isAccessTrue) {
-      const selectQuery = "SELECT ownerEmail FROM `clubs` WHERE ownerEmail LIKE CONCAT('%', ?, '%') LIMIT 1;";
-      adminConnection.query(selectQuery, [ownerEmail], (error, results) => {
-        if (error) {
-          res.send('Unknown error, contact Cole or support.');
-          console.log(error);
-        } else if(ownerEmail === results[0].ownerEmail) {
-          res.redirect('manage-club');
-          return;
-        } else {
-          const existingEmails = results[0].ownerEmail.split(',').map(email => email.trim());
-          const updatedEmails = existingEmails.filter(email => email !== newEmail);
-          const updatedEmailsStr = updatedEmails.join(',');
-
-          const updateQuery = "UPDATE `clubs` SET `ownerEmail` = ? WHERE ownerEmail LIKE CONCAT('%', ?, '%');";
-          adminConnection.query(updateQuery, [updatedEmailsStr, ownerEmail], (error, results) => {
-            if (error) {
-              res.send('Unknown error, contact Cole or support.');
-              console.log(error);
-            } else {
-              res.redirect('manage-club');
-            }
-          });
-        }
-      });
-    } else {
-      res.send("Access denied error.");
-    }
-  } catch (error) {
-    res.send('Unknown error, contact Cole or support.');
-    console.log(error);
-  }
-};
-
 
 
 
@@ -389,6 +280,4 @@ module.exports = {
   clubCreatedGet,
   clubManageGet,
   updateInfoPost,
-  addOwnerEmail,
-  removeOwnerEmail
 }
