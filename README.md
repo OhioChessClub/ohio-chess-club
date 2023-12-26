@@ -39,10 +39,6 @@ Within 2 days of this commit, expect the following updates:
   - Password reset functionality with email verification.
   - Feature to request assistance if password reset cannot be fulfilled.
 
-- **Cookie Approval:**
-  - Require approval for cookies before creating a session cookie.
-  - 50% done, started and in main branch code, but not taken into affect.
-
 ## Configuration
 
 Before using the site, ensure the following configurations in the `.env` file:
