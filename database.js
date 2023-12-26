@@ -1,9 +1,11 @@
 // database.js
 const mongoose = require('mongoose');
 
+require('dotenv').config()
+
 async function connect() {
   try {
-    mongoose.connect('mongodb://127.0.0.1:27017/ohiochessclub')
+    mongoose.connect(`mongodb://${process.env.databaseURL}/${process.env.database}`)
     console.log('Database.js file has confirmed that database has connected.')
     return 'Connected'
   }
