@@ -16,77 +16,7 @@ const clubs = require('./clubsRoute');
 const homeRoute = require('./homeRoute');
 const admin = require('./adminRoutes');
 const bodyParser = require('body-parser')
-const {
-  viewsModel
-} = require('./database')
-
-// DECLARE DESCRIPTION AND TITLE MAPS
-
-const titleMap = {
-  // "viewFileName": "viewTItle"
-  "404": "404: Page not found",
-  "applyForClub": "Apply as Club Owner",
-  "beingReviewed": "Your club is being reviewed.",
-  "clubs": "Clubs",
-  "contact": "Contact",
-  "forgotPassword": "Reset your Password",
-  "index": "Ohio Chess Club",
-  "introductory-video-not-released": "Introductory Video",
-  "introductory-video": "Introductory Video",
-  "login": "Login",
-  "manageClub": "Manage your Club",
-  "manageClubUnverified": "Your club has not been verified",
-  "register": "Register",
-  "siteNotPublic": "Ohio Chess Club",
-  "verify": "Verify your Email"
-}
-
-const descMap = {
-  // "viewFileName": "viewTItle"
-  "404": "We cannot find this page on our servers.",
-  "applyForClub": "Apply to be a club owner on the Ohio Chess Club.",
-  "beingReviewed": "Your club you created is being reviewed for the Ohio Chess Club.",
-  "clubs": "View all the clubs on the Ohio Chess Club.",
-  "contact": "Contact the Ohio Chess Club.",
-  "forgotPassword": "Change your account's password on the Ohio CHess Club.",
-  "index": "The Ohio Chess club is the best completely free chess learning community.",
-  "introductory-video-not-released": "View the Introductory Video.",
-  "introductory-video": "View the Introductory Video.",
-  "login": "Login to the Ohio Chess Club",
-  "manageClub": "Manage your club on the Ohio Chess Club.",
-  "manageClubUnverified": "Manage your club on the Ohio Chess Club.",
-  "register": "Register an account for the Ohio Chess Club",
-  "siteNotPublic": "The Ohio Chess club is the best completely free chess learning community.",
-  "verify": "Verify your Email to Login to the Ohio Chess Club"
-}
-
-// DECLARE TITLE FINDING HELPER FUNCTIONS
-function getTitleFromFile(fileName) {
-  if (titleMap.hasOwnProperty(fileName)) {
-    return titleMap[fileName]
-  }
-  else {
-    return "Non-Existant"
-  }
-}
-function getDescFromFile(fileName) {
-  if (descMap.hasOwnProperty(fileName)) {
-    return descMap[fileName]
-  }
-  else {
-    return "Non-Existant"
-  }
-}
-
-// Example of Getting Title from File Name:
-// var fileName = "login"
-// var test = getTitleFromFile(fileName)
-// console.log(test)
-
-// Example of Getting Desc from File Name:
-// var fileName = "login"
-// var test = getDescFromFile(fileName)
-// console.log(test)
+const { renderPage, updateViews, getTitleFromFile, getDescFromFile } = require('./pageRenderer')
 
 // DECLARE NESSESARY VARIABLES AND CONFIG EXPRESS AS NEEDED
 
@@ -118,20 +48,6 @@ var isPublic = true;
 
 if (isPublic) {
   // FUNCTIONS
-  async function updateViews(req, res) {
-    try {
-      var query = { id: 1 }
-      var results = await viewsModel.find(query)
-      var currentViews = results[0].totalViews;
-      var newViews = currentViews + 1;
-      await viewsModel.findOneAndUpdate(query, { totalViews: newViews })
-    }
-    catch (error) {
-      if (error) {
-        console.log("Error adding to views.")
-      }
-    }
-  }
   function checkForAdmin(req, res, next) {
     if (req.session.loggedIn) {
       if (req.session.email === process.env.adminEmail) {
@@ -148,6 +64,17 @@ if (isPublic) {
       console.log("Server file has confirmed that database has connected.");
     }
   })()
+  function shouldRenderPage(fileName, req, res) {
+    var hasAcceptedCookies = req.session.acceptedCookies;
+    if (hasAcceptedCookies === true) {
+      return 'Continue'
+    }
+    else {
+      var title = getTitleFromFile(fileName)
+      var description = getDescFromFile(fileName)
+      res.render('acceptCookies', { title, description })
+    }
+  }
 
   // POST REQUESTS
   app.post('/register', authenticationPost.registerPost);
@@ -229,62 +156,101 @@ if (isPublic) {
   app.post('/apply', clubManagment.createClubPost);
   app.post('/updateBasicInfo', clubManagment.updateInfoPost);
   app.post('/contact', contact.contactPost)
+  app.post('/agree-to-cookies', (req, res) => {
+    req.session.acceptedCookies = true;
+    res.redirect('/')
+  })
 
   // GET REQUESTS
   app.get('/register', async (req, res) => {
-    await updateViews();
-    authenticationGet.registerGet(req, res)
+    var fileName = "register";
+    var shouldContinue = await shouldRenderPage(fileName, req, res)
+    if (shouldContinue === "Continue") {
+      authenticationGet.registerGet(req, res)
+    }
   });
   app.get('/login', async (req, res) => {
-    await updateViews();
-    authenticationGet.loginGet(req, res)
+    var fileName = "login";
+    var shouldContinue = await shouldRenderPage(fileName, req, res)
+    if (shouldContinue === "Continue") {
+      authenticationGet.loginGet(req, res)
+    }
   });
   app.get('/verify', async (req, res) => {
-    await updateViews();
-    authenticationGet.verifyGet(req, res)
+    var fileName = "verify";
+    var shouldContinue = await shouldRenderPage(fileName, req, res)
+    if (shouldContinue === "Continue") {
+      authenticationGet.verifyGet(req, res)
+    }
   });
   app.get('/clubs', async (req, res) => {
-    await updateViews();
-    clubs.viewClubsGet(req, res)
+    var fileName = "clubs";
+    var shouldContinue = await shouldRenderPage(fileName, req, res)
+    if (shouldContinue === "Continue") {
+      clubs.viewClubsGet(req, res)
+    }
   });
   app.get('/', async (req, res) => {
-    await updateViews();
-    homeRoute.homeRoute(req, res)
-  });
-  app.get('/introductory-video', (req, res) => {
-    var isAdmin = checkForAdmin(req, res);
-    if (isAdmin === 'Authorized') {
-      res.render('introductory-video')
+    var fileName = "index";
+    var shouldContinue = await shouldRenderPage(fileName, req, res)
+    if (shouldContinue === "Continue") {
+      homeRoute.homeRoute(req, res)
     }
-    else {
-      res.render('introductory-video-not-released')
+  });
+  app.get('/introductory-video', async (req, res) => {
+    var fileName = "introductory-video";
+    var shouldContinue = await shouldRenderPage(fileName, req, res)
+    if (shouldContinue === "Continue") {
+      var isAdmin = checkForAdmin(req, res);
+      if (isAdmin === 'Authorized') {
+        renderPage("introductory-video", req, res)
+      }
+      else {
+        renderPage('introductory-video-not-released', req, res)
+      }
     }
   })
   app.get('/apply', async (req, res) => {
-    await updateViews();
-    clubManagment.clubApplyGet(req, res)
+    var fileName = "applyForClub";
+    var shouldContinue = await shouldRenderPage(fileName, req, res)
+    if (shouldContinue === "Continue") {
+      clubManagment.clubApplyGet(req, res)
+    }
   });
   app.get('/club-created', async (req, res) => {
-    await updateViews();
-    clubManagment.clubCreatedGet(req, res)
+    var fileName = "beingReviewed";
+    var shouldContinue = await shouldRenderPage(fileName, req, res)
+    if (shouldContinue === "Continue") {
+      clubManagment.clubCreatedGet(req, res)
+    }
   });
   app.get('/manage-club', async (req, res) => {
-    await updateViews();
-    clubManagment.clubManageGet(req, res)
+    var fileName = "manageClub";
+    var shouldContinue = await shouldRenderPage(fileName, req, res)
+    if (shouldContinue === "Continue") {
+      clubManagment.clubManageGet(req, res)
+    }
   });
   app.get('/admin', async (req, res) => {
-    var isAuthorized = checkForAdmin(req, res);
-    if (isAuthorized === 'Authorized') {
-      admin.admin(req, res)
-    }
-    else {
-      await updateViews()
-      res.status(404).render('404')
+    var fileName = "admin";
+    var shouldContinue = await shouldRenderPage(fileName, req, res)
+    if (shouldContinue === "Continue") {
+      var isAuthorized = checkForAdmin(req, res);
+      if (isAuthorized === 'Authorized') {
+        admin.admin(req, res)
+      }
+      else {
+        await updateViews()
+        res.status(404).render('404')
+      }
     }
   })
   app.get('/contact', async (req, res) => {
-    await updateViews(req, res);
-    res.render('contact')
+    var fileName = "contact";
+    var shouldContinue = await shouldRenderPage(fileName, req, res)
+    if (shouldContinue === "Continue") {
+      await renderPage("contact", req, res)
+    }
   })
   app.get('/sitemap.xml', (req, res) => {
     res.sendFile('C:\\Users\\colew\\OneDrive\\Documents\\dev-projects\\server\\sitemap.xml')
@@ -295,29 +261,18 @@ if (isPublic) {
   app.get('/chessScript', (req, res) => {
     res.sendFile('C:\\Users\\colew\\OneDrive\\Documents\\dev-projects\\server\\chess.js')
   })
-  app.get('/chess', (req, res) => {
-    res.render('chess')
-  })
-  app.get('/reconnectToDatabase', (req, res) => {
-    console.log(databaseHelper)
-    res.render('reconnect', {
-      databaseHelper
-    })
-  })
   app.use(async (req, res) => {
-    await updateViews()
     res.status(404).render('404.ejs');
   });
 }
 else if (isPublic === false) {
-  app.get('/', (req, res) => {
-    res.render('siteNotPublic')
+  app.get('/', async (req, res) => {
+    await renderPage("siteNotPublic", req, res)
   });
   app.get('/css/allFrontend.css', (req, res) => {
     res.sendFile('C:\\Users\\colew\\OneDrive\\Documents\\server\\views\\allFrontend.css');
   })
   app.use(async (req, res) => {
-    // res.status(404).render('404.ejs');
     res.redirect('/')
   });
 }
@@ -325,7 +280,7 @@ else {
   console.log("Error Starting Application. isPublic incorrectly defined. Correct values: true; false || Boolean... not a string.")
 }
 
-const port = 3000;
+const port = 80;
 // const port = 80;
 app.listen(port)
 console.log(`Listening on port: ${port}`)

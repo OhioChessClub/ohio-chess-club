@@ -26,12 +26,6 @@ const transporter = nodeMailer.createTransport({
 
 
 const app = express();
-app.use(express.urlencoded({ extended: false }))
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: true
-}))
 
 function removeReturn(req, res) {
   req.session.loginReturnURL = null;

@@ -11,6 +11,9 @@ const {
   viewsModel
 } = require('./database')
 
+const pageRenderer = require('./pageRenderer')
+const { getDescFromFile, getTitleFromFile } = require('./pageRenderer')
+
 let feature1title;
 let feautre1fontawesome;
 let feature2title;
@@ -40,6 +43,9 @@ let totalViews;
 
 const admin = async (req, res) => {
   try {
+    var fileName = process.env.ADMIN_UPDATE_PAGE
+    const title = await getTitleFromFile(fileName)
+    const description = await getDescFromFile(fileName)
     var featuresResults = await featuresModel.find();
     feature1title = featuresResults[0].nameOfFeature;
     feautre1fontawesome = featuresResults[0].classValue;
@@ -96,7 +102,9 @@ const admin = async (req, res) => {
       mainButtonText,
       clubs,
       contactRequests,
-      totalViews
+      totalViews,
+      title,
+      description
     });
 
 
