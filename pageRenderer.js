@@ -74,14 +74,14 @@ async function updateViews(req, res) {
 }
 
 // ONLY USEFUL FOR RENDERING WITHOUT EJS VARIABLES
-async function renderPage(fileName, req, res) {
+async function renderView(fileName, req, res) {
     await updateViews(req, res);
     var title = getTitleFromFile(fileName);
     var description = getDescFromFile(fileName);
     res.render(fileName, { title, description })
 }
 module.exports = {
-    renderPage,
+    renderView,
     updateViews,
     getDescFromFile,
     getTitleFromFile

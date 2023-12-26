@@ -16,7 +16,7 @@ const clubs = require('./clubsRoute');
 const homeRoute = require('./homeRoute');
 const admin = require('./adminRoutes');
 const bodyParser = require('body-parser')
-const { renderPage, updateViews, getTitleFromFile, getDescFromFile } = require('./pageRenderer')
+const { renderView, updateViews, getTitleFromFile, getDescFromFile } = require('./pageRenderer')
 
 // DECLARE NESSESARY VARIABLES AND CONFIG EXPRESS AS NEEDED
 
@@ -68,6 +68,51 @@ if (isPublic) {
     var hasAcceptedCookies = req.session.acceptedCookies;
     if (hasAcceptedCookies === true) {
       return 'Continue'
+    }
+    else {
+      var title = getTitleFromFile(fileName)
+      var description = getDescFromFile(fileName)
+      res.render('acceptCookies', { title, description })
+    }
+  }
+  function RenderPage(fileName, req, res, pageFunction) {
+    var hasAcceptedCookies = req.session.acceptedCookies;
+    if (hasAcceptedCookies === true) {
+      pageFunction(req, res)
+    }
+    else {
+      var title = getTitleFromFile(fileName)
+      var description = getDescFromFile(fileName)
+      res.render('acceptCookies', { title, description })
+    }
+  }
+  function RenderPageAdmin(fileName, req, res, pageFunction) {
+    var hasAcceptedCookies = req.session.acceptedCookies;
+    if (hasAcceptedCookies === true) {
+      var isAdmin = checkForAdmin(req, res);
+      if (isAdmin === 'Authorized') {
+        if (pageFunction) {
+          pageFunction(req, res)
+        }
+        else {
+          renderView(fileName, req, res)
+        }
+      }
+      else {
+        var fileName = "404"
+        renderView(fileName, req, res)
+      }
+    }
+    else {
+      var title = getTitleFromFile(fileName)
+      var description = getDescFromFile(fileName)
+      res.render('acceptCookies', { title, description })
+    }
+  }
+  function RenderPagePlain(fileName, req, res) {
+    var hasAcceptedCookies = req.session.acceptedCookies;
+    if (hasAcceptedCookies === true) {
+      renderView(fileName, req, res)
     }
     else {
       var title = getTitleFromFile(fileName)
@@ -164,39 +209,30 @@ if (isPublic) {
   // GET REQUESTS
   app.get('/register', async (req, res) => {
     var fileName = "register";
-    var shouldContinue = await shouldRenderPage(fileName, req, res)
-    if (shouldContinue === "Continue") {
-      authenticationGet.registerGet(req, res)
-    }
+    var pageFunction = authenticationGet.registerGet;
+    RenderPage(fileName, req, res, pageFunction)
   });
   app.get('/login', async (req, res) => {
     var fileName = "login";
-    var shouldContinue = await shouldRenderPage(fileName, req, res)
-    if (shouldContinue === "Continue") {
-      authenticationGet.loginGet(req, res)
-    }
+    var pageFunction = authenticationGet.loginGet
+    RenderPage(fileName, req, res, pageFunction)
   });
   app.get('/verify', async (req, res) => {
     var fileName = "verify";
-    var shouldContinue = await shouldRenderPage(fileName, req, res)
-    if (shouldContinue === "Continue") {
-      authenticationGet.verifyGet(req, res)
-    }
+    var pageFunction = authenticationGet.verifyGet
+    RenderPage(fileName, req, res, pageFunction)
   });
   app.get('/clubs', async (req, res) => {
     var fileName = "clubs";
-    var shouldContinue = await shouldRenderPage(fileName, req, res)
-    if (shouldContinue === "Continue") {
-      clubs.viewClubsGet(req, res)
-    }
+    var pageFunction = clubs.viewClubsGet
+    RenderPage(fileName, req, res, pageFunction)
   });
   app.get('/', async (req, res) => {
     var fileName = "index";
-    var shouldContinue = await shouldRenderPage(fileName, req, res)
-    if (shouldContinue === "Continue") {
-      homeRoute.homeRoute(req, res)
-    }
+    var pageFunction = homeRoute.homeRoute
+    RenderPage(fileName, req, res, pageFunction)
   });
+  // TEMPORARY CODE WILL BE CHANGED TO REUSABLE CODE ONCE VIDEO RELEASED
   app.get('/introductory-video', async (req, res) => {
     var fileName = "introductory-video";
     var shouldContinue = await shouldRenderPage(fileName, req, res)
@@ -212,45 +248,27 @@ if (isPublic) {
   })
   app.get('/apply', async (req, res) => {
     var fileName = "applyForClub";
-    var shouldContinue = await shouldRenderPage(fileName, req, res)
-    if (shouldContinue === "Continue") {
-      clubManagment.clubApplyGet(req, res)
-    }
+    var pageFunction = clubManagment.clubApplyGet
+    RenderPage(fileName, req, res, pageFunction)
   });
   app.get('/club-created', async (req, res) => {
     var fileName = "beingReviewed";
-    var shouldContinue = await shouldRenderPage(fileName, req, res)
-    if (shouldContinue === "Continue") {
-      clubManagment.clubCreatedGet(req, res)
-    }
+    var pageFunction = clubManagment.clubCreatedGet
+    RenderPage(fileName, req, res, pageFunction)
   });
   app.get('/manage-club', async (req, res) => {
     var fileName = "manageClub";
-    var shouldContinue = await shouldRenderPage(fileName, req, res)
-    if (shouldContinue === "Continue") {
-      clubManagment.clubManageGet(req, res)
-    }
+    var pageFunction = clubManagment.clubManageGet
+    RenderPage(fileName, req, res, pageFunction)
   });
   app.get('/admin', async (req, res) => {
     var fileName = "admin";
-    var shouldContinue = await shouldRenderPage(fileName, req, res)
-    if (shouldContinue === "Continue") {
-      var isAuthorized = checkForAdmin(req, res);
-      if (isAuthorized === 'Authorized') {
-        admin.admin(req, res)
-      }
-      else {
-        await updateViews()
-        res.status(404).render('404')
-      }
-    }
+    var pageFunction = admin.admin
+    RenderPageAdmin(fileName, req, res, pageFunction)
   })
   app.get('/contact', async (req, res) => {
     var fileName = "contact";
-    var shouldContinue = await shouldRenderPage(fileName, req, res)
-    if (shouldContinue === "Continue") {
-      await renderPage("contact", req, res)
-    }
+    RenderPagePlain(fileName, req, res)
   })
   app.get('/sitemap.xml', (req, res) => {
     res.sendFile('C:\\Users\\colew\\OneDrive\\Documents\\dev-projects\\server\\sitemap.xml')

@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%- title -%></title>
     <link rel="manifest" href="manifest.json">
-    <link href="/css/all.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/3e69591437.js" crossorigin="anonymous"></script>
     <link href="/css/allFrontend.css" rel="stylesheet">
     <meta name="keywords" content="Chess, Free, Learning">
     <meta name="author" content="Ohio Chess Club">
@@ -38,15 +38,41 @@
                 <div class="nav-text-color-gray">Contact</div>
             </a>
         </li>
+        <li id="manageAccountLink">
+            <a>
+                <div class="nav-text-color-gray">Manage Account</div>
+            </a>
+        </li>
 
     </ul>
 </nav>
 
+<div class="model" id="model">
+    <i class="fa-solid fa-x closeSymbol" id="closeModel"></i>
+    <h1 class="mainModelTitle">Manage your Account</h1>
+    <h3 class="modelSubtitle">Cole Bauml (cole.w.bauml@gmail.com)</h3>
+    <p><a href="/deleteAcc" class="modelLink">Delete your Account</a></p>
+    <p><a href="/deleteAcc" class="modelLink">Change your Email</a></p>
+    <p><a href="/deleteAcc" class="modelLink">Reset your Password</a></p>
+    <p>Account ID: </p>
+</div>
+
 <script>
     
+    var modelContainer = document.getElementById('model');
+    modelContainer.style.display = "none"
 
+    var manageAccountButton = document.getElementById('manageAccountLink');
+    manageAccountButton.style.display = "none"
+    manageAccountButton.addEventListener('click', () => {
+        modelContainer.style.display = "block"
+    })
 
-    var userInformation = fetch('/AccountInformationNavGet')
-    var userInformationJson = userInformation.json()
-    console.log(userInformation)
+    var closeModelButton = document.getElementById('closeModel')
+    closeModelButton.addEventListener('click', () => {
+        modelContainer.style.display = "none"
+    })
+
+    
+
 </script>
