@@ -120,11 +120,11 @@ if (isPublic) {
   // FUNCTIONS
   async function updateViews(req, res) {
     try {
-      var query1 = { id: 1 }
-      var results = await viewsModel.find(query1)
+      var query = { id: 1 }
+      var results = await viewsModel.find(query)
       var currentViews = results[0].totalViews;
       var newViews = currentViews + 1;
-      var query2 = "UPDATE `views` SET `totalViews` = ? WHERE `views`.`id` = 1;"
+      await viewsModel.findOneAndUpdate(query, { totalViews: newViews })
     }
     catch (error) {
       if (error) {
