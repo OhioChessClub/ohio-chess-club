@@ -18,7 +18,6 @@ async function connect() {
 const Schema = mongoose.Schema;
 
 const clubsSchema = new Schema({
-  id: Number,
   clubName: String,
   clubOwnerName: String,
   clubDescription: String,
@@ -31,8 +30,7 @@ const contactrequestsSchema = new Schema({
   email: String,
   name: String,
   question: String,
-  isFulfilled: String,
-  id: Number
+  isFulfilled: String
 });
 
 const contactrequestsModel = mongoose.model('contactrequests', contactrequestsSchema)
@@ -61,7 +59,6 @@ const titlesSchema = new Schema({
 const titlesModel = mongoose.model('titles', titlesSchema)
 
 const unverifiedclubsSchema = new Schema({
-  id: Number,
   clubName: String,
   clubOwnerName: String,
   clubDescription: String,

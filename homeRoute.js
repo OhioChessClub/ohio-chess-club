@@ -14,7 +14,7 @@ const {
   coursesModel
 } = require('./database')
 
-const homeRoute = async (req, res) => {
+const homeRoute = async (req, res, accountInfo, title, description) => {
 
   let feature1title;
   let feautre1fontawesome;
@@ -90,7 +90,10 @@ const homeRoute = async (req, res) => {
       course5description,
       mainTitle,
       mainDesc,
-      mainButtonText
+      mainButtonText,
+      accountInfo,
+      title,
+      description
     });
   } catch (error) {
     console.error(error);

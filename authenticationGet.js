@@ -12,36 +12,37 @@ const {
   usersModel
 } = require('./database')
 
-const loginGet = async (req, res) => {
+const loginGet = async (req, res, accountInfo, title, description) => {
   if (req.session.accountPresent) {
     if (req.session.accountVerified === false) {
       res.redirect('/verify')
     }
   }
   else if (!req.session.loggedIn) {
-    res.render('login')
+    res.render('login', { accountInfo, title, description })
   }
   else { res.redirect('/') }
 };
-const registerGet = async (req, res) => {
+const registerGet = async (req, res, accountInfo, title, description) => {
   if (req.session.accountPresent) {
     if (req.session.accountVerified === false) {
       res.redirect('/verify')
     }
   }
   else if (!req.session.loggedIn) {
-    res.render('register')
+    res.render('register', { accountInfo, title, description })
   }
   else { res.redirect('/') }
 
 };
-const verifyGet = async (req, res) => {
+const verifyGet = async (req, res, accountInfo, title, description) => {
   try {
+    console.log(req.session)
     if (req.session.loggedIn) {
       res.redirect('/')
       return;
     }
-    if (!req.session.loggedIn) {
+    else if (!req.session.loggedIn) {
       if (req.session.accountVerified === false) {
         const email = req.session.email; // Retrieve email from session or wherever it is stored
 
@@ -49,21 +50,19 @@ const verifyGet = async (req, res) => {
           res.redirect('login');
           return;
         }
+        console.log(email)
         const query = { email: email }
         var results = await usersModel.findOne(query)
-
-        if (results.length === 0 || results[0].password === undefined || results[0].password === null) {
+        console.log(results)
+        if (results.length === 0) {
           res.redirect('login');
           return;
         }
 
-        if (req.session.loggedIn) {
-          res.redirect('index');
-          return;
-        } else {
-          res.render('verify', { email: req.session.email });
-          return;
-        }
+
+        res.render('verify', { email: req.session.email, accountInfo, title, description });
+        return;
+
       } else {
         res.redirect('login');
         return;

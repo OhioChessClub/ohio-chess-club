@@ -13,36 +13,41 @@
 
 <nav>
     <ul class="nav-top-white">
-        <li id="navlogotext">
-            <a>
-                <div>Ohio Chess Club</div>
-            </a>
-        </li>
-        <li>
-            <a href="/">
-                <div class="nav-text-color-gray">Home</div>
-            </a>
-        </li>
-        <li>
-            <a href="/clubs">
-                <div class="nav-text-color-gray">Clubs</div>
-            </a>
-        </li>
-        <li>
-            <a href="/manage-club">
-                <div class="nav-text-color-gray">Manage Club</div>
-            </a>
-        </li>
-        <li id="navselecttext">
-            <a href="/contact">
-                <div class="nav-text-color-gray">Contact</div>
-            </a>
-        </li>
-        <li id="manageAccountLink">
-            <a>
-                <div class="nav-text-color-gray">Manage Account</div>
-            </a>
-        </li>
+        <div class="left">
+            <li id="navlogotext">
+                <a>
+                    <div>Ohio Chess Club</div>
+                </a>
+            </li>
+            <li>
+                <a href="/">
+                    <div class="nav-text-color-gray">Home</div>
+                </a>
+            </li>
+            <li>
+                <a href="/clubs">
+                    <div class="nav-text-color-gray">Clubs</div>
+                </a>
+            </li>
+            <li>
+                <a href="/manage-club">
+                    <div class="nav-text-color-gray">Manage Club</div>
+                </a>
+            </li>
+            <li id="navselecttext">
+                <a href="/contact">
+                    <div class="nav-text-color-gray">Contact</div>
+                </a>
+            </li>
+        </div>
+        <div class="right">
+            <li id="manageAccountLink">
+                <a>
+                    <div class="nav-text-color-gray">Manage Account</div>
+                </a>
+            </li>
+        </div>
+
 
     </ul>
 </nav>
@@ -50,20 +55,27 @@
 <div class="model" id="model">
     <i class="fa-solid fa-x closeSymbol" id="closeModel"></i>
     <h1 class="mainModelTitle">Manage your Account</h1>
-    <h3 class="modelSubtitle">Cole Bauml (cole.w.bauml@gmail.com)</h3>
-    <p><a href="/deleteAcc" class="modelLink">Delete your Account</a></p>
-    <p><a href="/deleteAcc" class="modelLink">Change your Email</a></p>
-    <p><a href="/deleteAcc" class="modelLink">Reset your Password</a></p>
-    <p>Account ID: </p>
+    <div class="accountInfo" id="accountInfoDiv">
+        <h3 class="modelSubtitle" id="mainSubTitle"></h3>
+        <p><a href="/deleteAcc" class="modelLink">Delete your Account</a></p>
+        <p><a href="/deleteAcc" class="modelLink">Change your Email</a></p>
+        <p><a href="/deleteAcc" class="modelLink">Reset your Password</a></p>
+        <p id="accId">Account ID:</p>
+        <p id="accVerified">Account ---- verified</p>
+        <p id="accLocation">Country: City: State:</p>
+    </div>
+    <div id="notLoggedInInfo" style="display: none;">
+        <h3 class="modelSubtitle" id="mainSubTitle">You are not logged in.</h3>
+    </div>
+
 </div>
 
 <script>
-    
+
     var modelContainer = document.getElementById('model');
     modelContainer.style.display = "none"
 
     var manageAccountButton = document.getElementById('manageAccountLink');
-    manageAccountButton.style.display = "none"
     manageAccountButton.addEventListener('click', () => {
         modelContainer.style.display = "block"
     })
@@ -73,6 +85,27 @@
         modelContainer.style.display = "none"
     })
 
-    
+    var jsonData = `<%- JSON.stringify(accountInfo) -%>`;
+    var accountData = JSON.parse(jsonData);
+    console.log(accountData)
+    if (accountData.isLoggedIn === "no") {
+        console.log("Not logged in")
+        document.getElementById('accountInfoDiv').style.display = "none"
+        document.getElementById('notLoggedInInfo').style.display = "block"
+    }
+    else {
+        document.getElementById('mainSubTitle').innerText = `${accountData.fullName} (${accountData.email})`;
+        document.getElementById('accId').innerText = 'Account ID: ' + accountData.id
+        if (accountData.isVerified == "false") {
+            document.getElementById('accVerified').innerText = "Account isn't verified. Some features will be limited until you verify your account."
+        }
+        else if (accountData.isVerified == "true") {
+            document.getElementById('accVerified').innerText = "Account is verified."
+        }
+        else {
+            document.getElementById('accVerified').innerText = "Error getting the status of your accounts verification."
+        }
+        document.getElementById('accLocation').innerHTML = `Country: ${accountData.country}<br>City: ${accountData.city}<br>State: ${accountData.state}`
+    }
 
 </script>

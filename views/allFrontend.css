@@ -119,6 +119,33 @@ body {
     background-color: #8046e5;
 }
 
+#navlogotext {
+    color: black;
+    opacity: 1;
+    cursor: text;
+}
+
+.nav-text-color-gray {
+    color: grey;
+}
+
+.nav-top-white {
+    text-align: center;
+    margin: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    border-bottom: 1px solid #ccc;
+    padding: 10px;
+}
+
+.nav-top-white .left {
+    text-align: left;
+}
+.nav-top-white .right {
+    text-align: right;
+}
 .nav-top-white li {
     list-style: none;
     display: inline-block;
@@ -130,24 +157,6 @@ body {
     line-height: 1.5rem;
     cursor: pointer;
 }
-
-#navlogotext {
-    color: black;
-    opacity: 1;
-    text-align: left;
-    cursor: text;
-}
-
-.nav-text-color-gray {
-    color: grey;
-}
-
-.nav-top-white {
-    text-align: center;
-    padding: 0;
-    margin: 0;
-}
-
 @font-face {
     font-family: 'title';
     src: url('/fonts/google-concertone.ttf') format('truetype');
@@ -341,17 +350,6 @@ body {
     background-color: #8046e5;
 }
 
-.nav-top-white li {
-    list-style: none;
-    display: inline-block;
-    padding: 5px 14px;
-    border-radius: .375rem;
-    margin-top: 15px;
-    font-weight: 600;
-    font-size: .875rem;
-    line-height: 1.5rem;
-    cursor: pointer;
-}
 
 #navlogotext {
     color: black;
@@ -364,11 +362,6 @@ body {
     color: grey;
 }
 
-.nav-top-white {
-    text-align: center;
-    padding: 0;
-    margin: 0;
-}
 
 @media (max-width: 767px) {
     nav {
@@ -473,7 +466,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    background: #a8a9b3
+    background: #b0c4de 
 }
 .closeSymbol {
     position: absolute;

@@ -33,9 +33,9 @@ function removeReturn(req, res) {
 }
 
 
-const viewClubsGet = async (req, res) => {
+const viewClubsGet = async (req, res, accountInfo) => {
   var clubs = await clubsModel.find()
-  res.render('clubs', { clubs: clubs })
+  res.render('clubs', { clubs: clubs, accountInfo })
 }
 
 

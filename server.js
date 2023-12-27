@@ -17,7 +17,7 @@ const homeRoute = require('./homeRoute');
 const admin = require('./adminRoutes');
 const bodyParser = require('body-parser')
 const { renderView, updateViews, getTitleFromFile, getDescFromFile } = require('./pageRenderer')
-
+const { usersModel } = require('./database')
 // DECLARE NESSESARY VARIABLES AND CONFIG EXPRESS AS NEEDED
 
 app.use(session({
@@ -64,6 +64,7 @@ if (isPublic) {
       console.log("Server file has confirmed that database has connected.");
     }
   })()
+  // DEPRACATED SOON WHEN VIDEO BECOMES AVALIABLE
   function shouldRenderPage(fileName, req, res) {
     var hasAcceptedCookies = req.session.acceptedCookies;
     if (hasAcceptedCookies === true) {
@@ -75,10 +76,75 @@ if (isPublic) {
       res.render('acceptCookies', { title, description })
     }
   }
-  function RenderPage(fileName, req, res, pageFunction) {
+  async function RenderPage(fileName, req, res, pageFunction) {
+    var hasAcceptedCookies = req.session.acceptedCookies;
+    if (hasAcceptedCookies === true) {
+      var title = getTitleFromFile(fileName)
+      var description = getDescFromFile(fileName)
+      if (req.session.email != undefined) {
+        var query = { email: req.session.email }
+        var data = await usersModel.find(query)
+        console.log(data)
+        const accountInfo = {
+          isVerified: data[0].isVerified,
+          email: data[0].email,
+          fullName: data[0].name,
+          country: data[0].country,
+          city: data[0].city,
+          state: data[0].state,
+          id: data[0]._id
+        }
+        pageFunction(req, res, accountInfo, title, description)
+
+      }
+      else {
+        const accountInfo = {
+          isLoggedIn: "no"
+        }
+        pageFunction(req, res, accountInfo, title, description)
+      }
+
+    }
+    else {
+      var title = getTitleFromFile(fileName)
+      var description = getDescFromFile(fileName)
+      const accountInfo = {
+        isLoggedIn: "no"
+      }
+      res.render('acceptCookies', { title, description, accountInfo })
+    }
+  }
+  async function postReq(req, res, pageFunction) {
     var hasAcceptedCookies = req.session.acceptedCookies;
     if (hasAcceptedCookies === true) {
       pageFunction(req, res)
+    }
+    else {
+      res.send('You have not accepted cookies. Cannot follow up on post request.')
+    }
+  }
+  async function postReqAdmin(req, res, pageFunction) {
+    var hasAcceptedCookies = req.session.acceptedCookies;
+    if (hasAcceptedCookies === true) {
+      var isAdmin = checkForAdmin(req, res);
+      if (isAdmin === 'Authorized') {
+        var query = { email: req.session.email }
+        var data = await usersModel.find(query)
+        const accountInfo = {
+          isVerified: data[0].isVerified,
+          email: data[0].email,
+          fullName: data[0].name,
+          country: data[0].country,
+          city: data[0].city,
+          state: data[0].state,
+          id: data[0]._id
+        }
+        console.log(accountInfo)
+        pageFunction(req, res, accountInfo)
+      }
+      else {
+        res.send('You are not authorized to do this action. Please sign in again if you think you should be.')
+      }
     }
     else {
       var title = getTitleFromFile(fileName)
@@ -86,16 +152,40 @@ if (isPublic) {
       res.render('acceptCookies', { title, description })
     }
   }
-  function RenderPageAdmin(fileName, req, res, pageFunction) {
+  async function RenderPageAdmin(fileName, req, res, pageFunction) {
     var hasAcceptedCookies = req.session.acceptedCookies;
     if (hasAcceptedCookies === true) {
       var isAdmin = checkForAdmin(req, res);
       if (isAdmin === 'Authorized') {
         if (pageFunction) {
-          pageFunction(req, res)
+          var query = { email: req.session.email }
+          var data = await usersModel.find(query)
+          const accountInfo = {
+            isVerified: data[0].isVerified,
+            email: data[0].email,
+            fullName: data[0].name,
+            country: data[0].country,
+            city: data[0].city,
+            state: data[0].state,
+            id: data[0]._id
+          }
+          console.log(accountInfo)
+          pageFunction(req, res, accountInfo)
         }
         else {
-          renderView(fileName, req, res)
+          var query = { email: req.session.email }
+          var data = await usersModel.find(query)
+          const accountInfo = {
+            isVerified: data[0].isVerified,
+            email: data[0].email,
+            fullName: data[0].name,
+            country: data[0].country,
+            city: data[0].city,
+            state: data[0].state,
+            id: data[0]._id
+          }
+          console.log(accountInfo)
+          renderView(fileName, req, res, accountInfo)
         }
       }
       else {
@@ -109,10 +199,29 @@ if (isPublic) {
       res.render('acceptCookies', { title, description })
     }
   }
-  function RenderPagePlain(fileName, req, res) {
+  async function RenderPagePlain(fileName, req, res) {
     var hasAcceptedCookies = req.session.acceptedCookies;
     if (hasAcceptedCookies === true) {
-      renderView(fileName, req, res)
+      var query = { email: req.session.email }
+      var data = await usersModel.find(query)
+      let accountInfo;
+      if (data.length > 0) {
+        accountInfo = {
+          isVerified: data[0].isVerified,
+          email: data[0].email,
+          fullName: data[0].name,
+          country: data[0].country,
+          city: data[0].city,
+          state: data[0].state,
+          id: data[0]._id
+        }
+      }
+      else {
+        accountInfo = {
+          isLoggedIn: "no"
+        }
+      }
+      renderView(fileName, req, res, accountInfo)
     }
     else {
       var title = getTitleFromFile(fileName)
@@ -122,85 +231,70 @@ if (isPublic) {
   }
 
   // POST REQUESTS
-  app.post('/register', authenticationPost.registerPost);
-  app.post('/login', authenticationPost.loginPost);
-  app.post('/verify', authenticationPost.verifyPost);
-  app.post('/forgotpasswordpost', authenticationPost.forgotPasswordPost);
+  app.post('/register', (req, res) => {
+    var pageFunction = authenticationPost.registerPost
+    postReq(req, res, pageFunction)
+  })
+  app.post('/login', (req, res) => {
+    var pageFunction = authenticationPost.loginPost
+    postReq(req, res, pageFunction)
+  })
+  app.post('/verify', (req, res) => {
+    var pageFunction = authenticationPost.verifyPost
+    postReq(req, res, pageFunction)
+  })
+  app.post('/forgotpasswordpost', (req, res) => {
+    var pageFunction = authenticationPost.forgotPasswordPost
+    postReq(req, res, pageFunction)
+  })
   app.post('/updatefeaturetitleanddesc', (req, res) => {
-    var isAuthorized = checkForAdmin(req, res);
-    if (isAuthorized === 'Authorized') {
-      adminUpdates.updatefeaturetitleanddesc(req, res)
-    }
-    else {
-      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
-    }
+    var pageFunction = adminUpdates.updatefeaturetitleanddesc;
+    postReqAdmin(req, res, pageFunction)
   })
   app.post('/updatecoursestitleanddesc', (req, res) => {
-    var isAuthorized = checkForAdmin(req, res);
-    if (isAuthorized === 'Authorized') {
-      adminUpdates.updatecoursestitleanddesc(req, res)
-    }
-    else {
-      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
-    }
+    var pageFunction = adminUpdates.updatecoursestitleanddesc
+    postReqAdmin(req, res, pageFunction)
   })
   app.post('/updatemaintitleanddesc', (req, res) => {
-    var isAuthorized = checkForAdmin(req, res);
-    if (isAuthorized === 'Authorized') {
-      adminUpdates.updatemaintitleanddesc(req, res)
-    }
-    else {
-      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
-    }
+    var pageFunction = adminUpdates.updatemaintitleanddesc
+    postReqAdmin(req, res, pageFunction)
   })
   app.post('/updatemainbuttontext', (req, res) => {
-    var isAuthorized = checkForAdmin(req, res);
-    if (isAuthorized === 'Authorized') {
-      adminUpdates.updatemainbuttontext(req, res)
-    }
-    else {
-      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
-    }
+    var pageFunction = adminUpdates.updatemainbuttontext
+    postReqAdmin(req, res, pageFunction)
   })
   app.post('/updatefeaturedata', (req, res) => {
-    var isAuthorized = checkForAdmin(req, res);
-    if (isAuthorized === 'Authorized') {
-      adminUpdates.updatefeaturedata(req, res)
-    }
-    else {
-      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
-    }
+    var pageFunction = adminUpdates.updatefeaturedata
+    postReqAdmin(req, res, pageFunction)
   })
   app.post('/updatecoursesdata', (req, res) => {
-    var isAuthorized = checkForAdmin(req, res);
-    if (isAuthorized === 'Authorized') {
-      adminUpdates.updatecoursesdata(req, res)
-    }
-    else {
-      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
-    }
+    var pageFunction = adminUpdates.updatecoursesdata
+    postReqAdmin(req, res, pageFunction)
   })
   app.post('/fulfillQuestion', (req, res) => {
-    var isAuthorized = checkForAdmin(req, res);
-    if (isAuthorized === 'Authorized') {
-      adminUpdates.markContactResolved(req, res)
-    }
-    else {
-      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
-    }
+    var pageFunction = adminUpdates.markContactResolved
+    postReqAdmin(req, res, pageFunction)
   })
   app.post('/verifyClub', (req, res) => {
-    var isAuthorized = checkForAdmin(req, res);
-    if (isAuthorized === 'Authorized') {
-      adminUpdates.verifyClub(req, res)
-    }
-    else {
-      res.send('You are not authorized to do this action. Try signing in again if you think you should be.')
-    }
+    var pageFunction = adminUpdates.verifyClub
+    postReqAdmin(req, res, pageFunction)
   })
-  app.post('/apply', clubManagment.createClubPost);
-  app.post('/updateBasicInfo', clubManagment.updateInfoPost);
-  app.post('/contact', contact.contactPost)
+  app.post('/delete-account', (req, res) => {
+    var pageFunction = authenticationPost.deleteAccountPost
+    postReq(req, res, pageFunction)
+  })
+  app.post('/apply', (req, res) => {
+    var pageFunction = clubManagment.createClubPost;
+    postReq(req, res, pageFunction)
+  })
+  app.post('/updateBasicInfo', (req, res) => {
+    var pageFunction = clubManagment.updateInfoPost;
+    postReq(req, res, pageFunction)
+  })
+  app.post('/contact', (req, res) => {
+    var pageFunction = contact.contactPost;
+    postReq(req, res, pageFunction)
+  })
   app.post('/agree-to-cookies', (req, res) => {
     req.session.acceptedCookies = true;
     res.redirect('/')
@@ -239,10 +333,10 @@ if (isPublic) {
     if (shouldContinue === "Continue") {
       var isAdmin = checkForAdmin(req, res);
       if (isAdmin === 'Authorized') {
-        renderPage("introductory-video", req, res)
+        RenderPagePlain("introductory-video", req, res)
       }
       else {
-        renderPage('introductory-video-not-released', req, res)
+        RenderPagePlain('introductory-video-not-released', req, res)
       }
     }
   })
@@ -285,7 +379,7 @@ if (isPublic) {
 }
 else if (isPublic === false) {
   app.get('/', async (req, res) => {
-    await renderPage("siteNotPublic", req, res)
+    await RenderPagePlain("siteNotPublic", req, res)
   });
   app.get('/css/allFrontend.css', (req, res) => {
     res.sendFile('C:\\Users\\colew\\OneDrive\\Documents\\server\\views\\allFrontend.css');

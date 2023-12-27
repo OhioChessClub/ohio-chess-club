@@ -33,9 +33,9 @@ function removeReturn(req, res) {
   req.session.loginReturnURL = null;
 }
 
-const contactPost = async (req, res) => {
+const contactPost = async (req, res, accountInfo, title, description) => {
   try {
-    var formEnabled = false;
+    var formEnabled = true;
     if(formEnabled === true){
       
 
@@ -69,24 +69,24 @@ const contactPost = async (req, res) => {
     await importIntoDatabase(contactName, contactEmail, contactText, isFulfilled, req, res);
 
     var actionFinished = `Your request has been processed. You should be reached out to by email within 24 hours. A confirmation email has been sent to your email. (${contactEmail})`
-    res.render('contact', {actionFinished});
+    res.render('contact', {actionFinished,accountInfo, title, description});
     }
     else {
       var error = "The contact form is not avaliable to the public at this time."
-      res.render('contact', {actionError: error})
+      res.render('contact', {actionError: error,accountInfo, title, description})
 
     }
 
   }
   catch (error) {
-    sendError(req, res, error)
+    sendError(req, res, error, accountInfo)
   }
 }
 
-function sendError(req, res, error){
+function sendError(req, res, error, accountInfo){
   console.log(`CONTACT ERROR: ` + error)
     var actionError = `There was an error sending your request. Our developers have been notified and are looking into it. We are sorry for the inconvienience.`;
-    res.render('contact', {actionError})
+    res.render('contact', {actionError, accountInfo})
 }
 
 function importIntoDatabase(contactName, contactEmail, contactText, isFulfilled, req, res){

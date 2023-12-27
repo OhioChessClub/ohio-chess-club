@@ -41,7 +41,7 @@ let contactRequests
 let clubs;
 let totalViews;
 
-const admin = async (req, res) => {
+const admin = async (req, res, accountInfo, title, description) => {
   try {
     var fileName = process.env.ADMIN_UPDATE_PAGE
     const title = await getTitleFromFile(fileName)
@@ -103,6 +103,9 @@ const admin = async (req, res) => {
       clubs,
       contactRequests,
       totalViews,
+      title,
+      description,
+      accountInfo,
       title,
       description
     });
