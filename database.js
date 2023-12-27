@@ -22,6 +22,8 @@ const clubsSchema = new Schema({
   clubOwnerName: String,
   clubDescription: String,
   ownerEmail: String
+}, {
+  versionKey: false
 });
 
 const clubsModel = mongoose.model('clubs', clubsSchema)
@@ -31,6 +33,8 @@ const contactrequestsSchema = new Schema({
   name: String,
   question: String,
   isFulfilled: String
+}, {
+  versionKey: false
 });
 
 const contactrequestsModel = mongoose.model('contactrequests', contactrequestsSchema)
@@ -39,6 +43,8 @@ const coursesSchema = new Schema({
   id: Number,
   courseTitle: String,
   courseDesc: String
+}, {
+  versionKey: false
 });
 
 const coursesModel = mongoose.model('courses', coursesSchema)
@@ -47,6 +53,8 @@ const featuresSchema = new Schema({
   id: Number,
   nameOfFeature: String,
   classValue: String
+}, {
+  versionKey: false
 });
 
 const featuresModel = mongoose.model('features', featuresSchema)
@@ -54,6 +62,8 @@ const featuresModel = mongoose.model('features', featuresSchema)
 const titlesSchema = new Schema({
   id: Number,
   valueOfTitle: String
+}, {
+  versionKey: false
 });
 
 const titlesModel = mongoose.model('titles', titlesSchema)
@@ -63,6 +73,8 @@ const unverifiedclubsSchema = new Schema({
   clubOwnerName: String,
   clubDescription: String,
   ownerEmail: String
+}, {
+  versionKey: false
 });
 
 const unverifiedclubsModel = mongoose.model('unverifiedclubs', unverifiedclubsSchema)
@@ -77,6 +89,8 @@ const usersSchema = new Schema({
   city: String,
   state: String,
   id: Number
+}, {
+  versionKey: false
 });
 
 const usersModel = mongoose.model('users', usersSchema)
@@ -84,6 +98,8 @@ const usersModel = mongoose.model('users', usersSchema)
 const viewsSchema = new Schema({
   id: Number,
   totalViews: Number
+}, {
+  versionKey: false
 });
 
 const viewsModel = mongoose.model('views', viewsSchema)

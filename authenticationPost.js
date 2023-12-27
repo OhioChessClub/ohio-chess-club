@@ -48,6 +48,12 @@ function logInAccount(req, res, email) {
   req.session.accountPresent = true;
   req.session.accountVerified = true;
 }
+function logoutAccount(req) {
+  req.session.email = null;
+  req.session.accountPresent = false;
+  req.session.accountVerified = false;
+  req.session.loggedIn = false;
+}
 
 const loginPost = async (req, res, accountInfo, title, description) => {
   const { email, password } = req.body;
@@ -272,6 +278,7 @@ const deleteAccountPost = async (req, res) => {
         email: req.session.email
       }
       await usersModel.findOneAndDelete(query);
+      await logoutAccount(req)
       res.redirect('/')
     }
     else {
@@ -280,7 +287,22 @@ const deleteAccountPost = async (req, res) => {
 
   }
   catch (error) {
+    res.send('There was a error deleting your account. Error: ' + err)
+  }
+}
+const logoutPost = async (req, res) => {
+  try {
+    if (req.session.loggedIn) {
+      await logoutAccount(req)
+      res.redirect('/')
+    }
+    else {
+      res.send("Cannot fufill request: You are not logged in.")
+    }
 
+  }
+  catch (error) {
+    res.send('There was a error logging out. Error: ' + err)
   }
 }
 
@@ -290,7 +312,8 @@ module.exports = {
   loginPost,
   verifyPost,
   forgotPasswordPost,
-  deleteAccountPost
+  deleteAccountPost,
+  logoutPost
 };
 
 

@@ -32,12 +32,17 @@ The client-side code is located in the `/views` folder, while everything else pe
 
 Within 2 days of this commit, expect the following updates:
 
-- **Account Menu:**
-  - Options for account management, including delete, information, and email change.
-
 - **Forgot Password:**
   - Password reset functionality with email verification.
   - Feature to request assistance if password reset cannot be fulfilled.
+
+- **Change Password**
+  - Lets you change your account password. Will be a seperate get request linked from the account UI.
+  - Will require knowing the current password unlike forgot password.
+
+- **Limitations**
+  - Rate limiting of post and get requests. 
+  - Special limits for changing password per account. (forgot and plain change.)
 
 ## Configuration
 
@@ -50,3 +55,4 @@ registerPage=register          # Will be deprecated soon
 adminEmail=admin               # Admin account email (coded into the website so it does not have to be valid)
 databaseURL=localhost          # MongoDB hosted on the same computer
 database=ohiochessclub         # Name of the database to store website data
+port=80                        # Port to host website on

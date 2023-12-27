@@ -57,9 +57,14 @@
     <h1 class="mainModelTitle">Manage your Account</h1>
     <div class="accountInfo" id="accountInfoDiv">
         <h3 class="modelSubtitle" id="mainSubTitle"></h3>
-        <p><a href="/deleteAcc" class="modelLink">Delete your Account</a></p>
-        <p><a href="/deleteAcc" class="modelLink">Change your Email</a></p>
-        <p><a href="/deleteAcc" class="modelLink">Reset your Password</a></p>
+        <form method="post" action="/delete-account">
+            <p>To delete your account, type "confirmdelete" in the box below.</p>
+            <input type="text" id="accountDeleteInput" placeholder="Enter 'confirmdelete'">
+            <button type="submit" class="modelButton" id="accountDeleteButton" disabled>Delete your Account</button>
+        </form><br>
+        <form method="post" action="/logout-account">
+            <button type="submit" class="modelButton">Logout</button>
+        </form>
         <p id="accId">Account ID:</p>
         <p id="accVerified">Account ---- verified</p>
         <p id="accLocation">Country: City: State:</p>
@@ -107,5 +112,16 @@
         }
         document.getElementById('accLocation').innerHTML = `Country: ${accountData.country}<br>City: ${accountData.city}<br>State: ${accountData.state}`
     }
+
+    var accountDeleteInput = document.getElementById('accountDeleteInput');
+    var accountDeleteButton = document.getElementById('accountDeleteButton');
+    accountDeleteInput.addEventListener('input', () => {
+        if(accountDeleteInput.value === "confirmdelete"){
+            accountDeleteButton.disabled = false;
+        }
+        else{
+            accountDeleteButton.disabled = true;
+        }
+    })
 
 </script>

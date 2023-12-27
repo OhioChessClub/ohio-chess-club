@@ -97,6 +97,8 @@ const createClubPost = async (req, res, accountInfo) => {
         subject: "Club is being reviewed",
         html: contents,
       });
+
+      res.redirect('/club-created')
     }
     catch (error) {
       res.render('applyForClub', { actionError: "There was an error creating your club. Feel free to contact us for help. Error: " + error, accountInfo })

@@ -76,36 +76,39 @@ if (isPublic) {
       const accountInfo = {
         isLoggedIn: "no"
       }
-      res.render('acceptCookies', { title, description, accountInfo })    }
+      res.render('acceptCookies', { title, description, accountInfo })
+    }
+  }
+  async function getAccountInformation(req) {
+    if (req.session.email != undefined) {
+      var query = { email: req.session.email }
+      var data = await usersModel.find(query)
+      console.log(data)
+      const accountInfo = {
+        isVerified: data[0].isVerified,
+        email: data[0].email,
+        fullName: data[0].name,
+        country: data[0].country,
+        city: data[0].city,
+        state: data[0].state,
+        id: data[0]._id
+      }
+      return accountInfo
+    }
+    else {
+      return accountInfo = {
+        isLoggedIn: "no"
+      }
+    }
+
   }
   async function RenderPage(fileName, req, res, pageFunction) {
     var hasAcceptedCookies = req.session.acceptedCookies;
     if (hasAcceptedCookies === true) {
       var title = getTitleFromFile(fileName)
       var description = getDescFromFile(fileName)
-      if (req.session.email != undefined) {
-        var query = { email: req.session.email }
-        var data = await usersModel.find(query)
-        console.log(data)
-        const accountInfo = {
-          isVerified: data[0].isVerified,
-          email: data[0].email,
-          fullName: data[0].name,
-          country: data[0].country,
-          city: data[0].city,
-          state: data[0].state,
-          id: data[0]._id
-        }
-        pageFunction(req, res, accountInfo, title, description)
-
-      }
-      else {
-        const accountInfo = {
-          isLoggedIn: "no"
-        }
-        pageFunction(req, res, accountInfo, title, description)
-      }
-
+      const accountInfo = await getAccountInformation(req)
+      pageFunction(req, res, accountInfo, title, description)
     }
     else {
       var title = getTitleFromFile(fileName)
@@ -250,6 +253,10 @@ if (isPublic) {
   })
   app.post('/forgotpasswordpost', (req, res) => {
     var pageFunction = authenticationPost.forgotPasswordPost
+    postReq(req, res, pageFunction)
+  })
+  app.post('/logout-account', (req, res) => {
+    var pageFunction = authenticationPost.logoutPost
     postReq(req, res, pageFunction)
   })
   app.post('/updatefeaturetitleanddesc', (req, res) => {
