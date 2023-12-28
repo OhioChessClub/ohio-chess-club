@@ -234,7 +234,10 @@ if (isPublic) {
     else {
       var title = getTitleFromFile(fileName)
       var description = getDescFromFile(fileName)
-      res.render('acceptCookies', { title, description })
+      const accountInfo = {
+        isLoggedIn: "no"
+      }
+      res.render('acceptCookies', { title, description, accountInfo })
     }
   }
 
