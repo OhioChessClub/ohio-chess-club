@@ -19,7 +19,10 @@ const titleMap = {
     "register": "Register",
     "siteNotPublic": "Ohio Chess Club",
     "verify": "Verify your Email",
-    "admin": "Admin"
+    "forgotPassword": "Reset your Password",
+    "forgotPasswordLink": "Reset your Password",
+    "forgotPasswordUnauthorized": "Reset your Password",
+    "admin": "Admin",
 }
 
 const descMap = {
@@ -39,7 +42,10 @@ const descMap = {
     "register": "Register an account for the Ohio Chess Club",
     "siteNotPublic": "The Ohio Chess club is the best completely free chess learning community.",
     "verify": "Verify your Email to Login to the Ohio Chess Club",
-    "admin": "Perform admin operations on the Ohio Chess Club."
+    "admin": "Perform admin operations on the Ohio Chess Club.",
+    "forgotPassword": "Reset your password on the Ohio Chess Club.",
+    "forgotPasswordLink": "Reset your password on the Ohio Chess Club.",
+    "forgotPasswordUnauthorized": "Reset your password on the Ohio Chess Club."
 }
 
 function getTitleFromFile(fileName) {

@@ -5,6 +5,7 @@
       <a href="#" style="color: red;">ERROR: <%- actionError -%></a>
     <% } %>
   <h1 class="subtitle">Register</h1>
+  <a href="/login">Already have an account? Login</a><br><br>
   <form action="/register" method="POST" class="login-form">
       <input type="text" name="name" placeholder="Full Name" class="login-input" /><br />
       <input type="text" name="email" placeholder="Email" class="login-input" /><br />
@@ -15,6 +16,5 @@
       <p>*If you do not live in a state, leave blank.</p>
       <button type="submit" class="button-texture button-purple-color buttonpurple-hover-effect">Register</button>
     </form>
-    <a href="/login">Already have an account? Login</a>
 </div>
 </body>

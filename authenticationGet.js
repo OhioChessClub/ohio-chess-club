@@ -19,7 +19,15 @@ const loginGet = async (req, res, accountInfo, title, description) => {
     }
   }
   else if (!req.session.loggedIn) {
-    res.render('login', { accountInfo, title, description })
+    if (req.session.forgotPasswordSuccess) {
+      var actionSuccess = req.session.forgotPasswordSuccess;
+      req.session.forgotPasswordSuccess = null;
+      res.render('login', { accountInfo, title, description, actionSuccess })
+    }
+    else {
+    res.render('login', { accountInfo, title, description })      
+    }
+
   }
   else { res.redirect('/') }
 };
@@ -85,29 +93,57 @@ function applyRes(req, res) {
 
 const checkUserFile = require('./checkForUser')
 
-var userInfoGet = async (req, res) => {
-  if (req.session.accountPresent) {
-    //   req.session.email
-    // req.session.accountPresent
-    // req.session.accountVerified
-    // req.sesssion.loggedIn
-    var email = req.session.email;
-    var verifiedStatus;
-    if (req.session.accountVerified) {
-      // User is fully verified
-      verifiedStatus = "Verified"
-    }
+var forgotPasswordGet = async (req, res, accountInfo, title, description) => {
+  if (req.session.accountPresent == true) {
+    res.redirect('/')
   }
   else {
-    var userInfo = {
-      status: "NotLoggedIn"
+    if (req.session.forgotPasswordError) {
+      var actionError = req.session.forgotPasswordError;
+      req.session.forgotPasswordError = null;
+      res.render('forgotPassword', { title, description, accountInfo, actionError })
     }
+    if (req.session.forgotPasswordSuccess) {
+      var actionSuccess = req.session.forgotPasswordSuccess;
+      req.session.forgotPasswordSuccess = null;
+      res.render('forgotPassword', { title, description, accountInfo, actionSuccess })
+    }
+    else {
+      res.render('forgotPassword', { title, description, accountInfo })
+    }
+
+  }
+}
+
+var forgotPasswordLinkGet = async (req, res, accountInfo, title, description) => {
+  if (req.session.accountPresent == true) {
+    res.redirect('/')
+  }
+  else {
+    const email = req.query.email;
+    const key = req.query.key;
+    if (email && key) {
+      var filter = { email: email };
+      var data = await usersModel.find(filter)
+      if (data[0].changePasswordCode === parseInt(key)) {
+        res.render('forgotPasswordLink', { title, description, accountInfo, email, key })
+      }
+      else {
+        res.render('forgotPasswordUnauthorized', { title, description, accountInfo })
+      }
+    }
+    else {
+      res.render('forgotPasswordUnauthorized', { title, description, accountInfo })
+    }
+
   }
 }
 
 module.exports = {
   loginGet,
   registerGet,
-  verifyGet
+  verifyGet,
+  forgotPasswordGet,
+  forgotPasswordLinkGet
 };
 

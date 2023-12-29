@@ -24,6 +24,7 @@ app.use(session({
   secret: 'WEqwewqewq4F5WEQWEFQW',
   resave: false,
   saveUninitialized: false,
+  name: 'session'
 }));
 
 app.use((req, res, next) => {
@@ -122,7 +123,8 @@ if (isPublic) {
   async function postReq(req, res, pageFunction) {
     var hasAcceptedCookies = req.session.acceptedCookies;
     if (hasAcceptedCookies === true) {
-      pageFunction(req, res)
+      const accountInfo = await getAccountInformation(req)
+      pageFunction(req, res, accountInfo)
     }
     else {
       res.send('You have not accepted cookies. Cannot follow up on post request.')
@@ -286,6 +288,10 @@ if (isPublic) {
     var pageFunction = adminUpdates.updatecoursesdata
     postReqAdmin(req, res, pageFunction)
   })
+  app.post('/forgotpasswordlinkpost', (req, res) => {
+    var pageFunction = authenticationPost.forgotPasswordLinkPost
+    postReq(req, res, pageFunction)
+  })
   app.post('/fulfillQuestion', (req, res) => {
     var pageFunction = adminUpdates.markContactResolved
     postReqAdmin(req, res, pageFunction)
@@ -326,6 +332,16 @@ if (isPublic) {
     var pageFunction = authenticationGet.loginGet
     RenderPage(fileName, req, res, pageFunction)
   });
+  app.get('/forgot-password', (req, res) => {
+    var fileName = "forgotPassword";
+    var pageFunction = authenticationGet.forgotPasswordGet;
+    RenderPage(fileName, req, res, pageFunction)
+  })
+  app.get('/reset-password-link', (req, res) => {
+    var fileName = "forgotPasswordLink";
+    var pageFunction = authenticationGet.forgotPasswordLinkGet;
+    RenderPage(fileName, req, res, pageFunction)
+  })
   app.get('/verify', async (req, res) => {
     var fileName = "verify";
     var pageFunction = authenticationGet.verifyGet

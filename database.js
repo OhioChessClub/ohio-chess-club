@@ -88,7 +88,8 @@ const usersSchema = new Schema({
   country: String,
   city: String,
   state: String,
-  id: Number
+  id: Number,
+  changePasswordCode: Number
 }, {
   versionKey: false
 });

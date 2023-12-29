@@ -148,7 +148,8 @@ const registerPost = async (req, res, accountInfo, title, description) => {
             isVerified: "false",
             country: country,
             city: city,
-            state: state
+            state: state,
+            changePasswordCode: 0
           });
           user.save()
           // req.session.loggedIn = true;
@@ -254,19 +255,112 @@ const forgotPasswordPost = async (req, res, title, description) => {
     const { email } = req.body;
     var emailIsValid = isValidEmail(email);
     if (emailIsValid === true || email === process.env.adminEmail) {
-      var query = "SELECT * FROM `users` WHERE email = ?";
       const filter = { email: email }
-      var results = await usersModel.find(filter)
+      var data = await usersModel.find(filter);
+      if (data.length > 0) {
+        var hostname = req.hostname;
+        const verificationCode = generateRandomSixDigitNumber();
+        await usersModel.findOneAndUpdate(filter, { changePasswordCode: verificationCode })
+        const contents = `
+      <div class="container">
+        <div class="content">
+          <h1>Instructions on Reseting your Password</h1>
+          <p>Dear User,</p>
+          <p>Thank you for submiting a request to change your password.</p>
+          <p>To reset your password, please click <a href="https://${hostname}/reset-password-link?email=${email}&key=${verificationCode}">this link.</a>
+          <p>If you have any questions or need assistance, feel free to contact our support team.</p>
+        </div>
+        <div class="footer">
+          <p>This email was sent to you by the <b>Ohio Chess Club</b>.</p>
+          <p>Please do not reply to this email.</p>
+        </div>
+      </div>
+        `
+        await transporter.sendMail({
+          from: `Ohio Chess Club <ohiochessclub@gmail.com>`,
+          to: email,
+          subject: "Reset your Password",
+          html: contents,
+        });
+
+        req.session.forgotPasswordSuccess = "A link to reset your password is in your email."
+        res.redirect('/forgot-password');
+
+      }
+      else {
+        req.session.forgotPasswordError = "No account under that email address is registered."
+        res.redirect('/forgot-password');
+      }
+
     }
     else {
-      res.render('forgotPassword', { actionError: "That email is not a valid email.", accountInfo, title, description })
+      req.session.forgotPasswordError = "That email is not a valid email."
+      res.redirect('/forgot-password')
     }
   } catch (error) {
     if (error) {
-      res.render('forgotPassword', { actionError: "There was an unknown error while reseting your passcode. Our developers have been notified and are looking in to it. If this issue persists, feel free to use the contact form so we can help you directly. Thanks so much!", accountInfo, title, description })
+      req.session.forgotPasswordError = "There was an unknown error while reseting your passcode. Our developers have been notified and are looking in to it. If this issue persists, feel free to use the contact form so we can help you directly. Thanks so much!"
+      res.redirect('/forgot-password')
+    }
+  }
+}
+
+const forgotPasswordLinkPost = async (req, res, title, description) => {
+  try {
+    const email = req.body.email;
+    const key = parseInt(req.body.key);
+    if (email && key) {
+      var filter = { email: email };
+      var data = await usersModel.find(filter)
+      if (data.length > 0) {
+        if (data[0].changePasswordCode != 0 && data[0].changePasswordCode === key) {
+            var password = req.body.password;
+            if (password === null || password === undefined || password === "") {
+              var noPassError = "Please enter a password."
+              res.render('forgotPasswordLink', { title, description, email, key, accountInfo, actionError: noPassError })
+              return;
+            }
+              var hashedPassword = await bcrypt.hash(password, 10)
+              await usersModel.findOneAndUpdate(filter, { password: hashedPassword })
+              await usersModel.findOneAndUpdate(filter, { changePasswordCode: 0 })
+              const contents = `
+  <div class="container">
+    <div class="content">
+      <h1>Thanks for using our site!</h1>
+      <p>Dear User,</p>
+      <p>Thank you for being a member of the Ohio Chess Club.</p>
+      <p>Your password has been successfully changed.</p>
+      <p>If you have any questions or need assistance, feel free to contact our support team.</p>
+    </div>
+    <div class="footer">
+      <p>This email was sent to you by the <b>Ohio Chess Club</b>.</p>
+      <p>Please do not reply to this email.</p>
+    </div>
+  </div>
+    `
+
+              await transporter.sendMail({
+                from: `Ohio Chess Club <ohiochessclub@gmail.com>`,
+                to: email,
+                subject: "Password Changed",
+                html: contents,
+              });
+              req.session.forgotPasswordSuccess = "Successfully changed password.";
+              res.redirect('/login')
+            
+        }
+      }
+      else {
+        res.render('forgotPasswordUnauthorized', { title, description, accountInfo })
+      }
     }
     else {
-      console.log(results)
+      res.render('forgotPasswordUnauthorized', { title, description, accountInfo })
+    }
+  } catch (error) {
+    if (error) {
+      req.session.forgotPasswordError = "There was an unknown error while reseting your passcode. Our developers have been notified and are looking in to it. If this issue persists, feel free to use the contact form so we can help you directly. Thanks so much!"
+      res.redirect('/login')
     }
   }
 }
@@ -313,7 +407,8 @@ module.exports = {
   verifyPost,
   forgotPasswordPost,
   deleteAccountPost,
-  logoutPost
+  logoutPost,
+  forgotPasswordLinkPost
 };
 
 
