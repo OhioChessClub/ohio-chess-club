@@ -25,7 +25,7 @@ const loginGet = async (req, res, accountInfo, title, description) => {
       res.render('login', { accountInfo, title, description, actionSuccess })
     }
     else {
-    res.render('login', { accountInfo, title, description })      
+      res.render('login', { accountInfo, title, description })
     }
 
   }
@@ -125,12 +125,18 @@ var forgotPasswordLinkGet = async (req, res, accountInfo, title, description) =>
     if (email && key) {
       var filter = { email: email };
       var data = await usersModel.find(filter)
-      if (data[0].changePasswordCode === parseInt(key)) {
-        res.render('forgotPasswordLink', { title, description, accountInfo, email, key })
+      if (data.length > 0) {
+        if (data[0].changePasswordCode === parseInt(key)) {
+          res.render('forgotPasswordLink', { title, description, accountInfo, email, key })
+        }
+        else {
+          res.render('forgotPasswordUnauthorized', { title, description, accountInfo })
+        }
       }
       else {
         res.render('forgotPasswordUnauthorized', { title, description, accountInfo })
       }
+
     }
     else {
       res.render('forgotPasswordUnauthorized', { title, description, accountInfo })
