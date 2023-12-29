@@ -115,7 +115,7 @@ var forgotPasswordGet = async (req, res, accountInfo, title, description) => {
   }
 }
 
-var forgotPasswordLinkGet = async (req, res, accountInfo, title, description) => {
+var forgotPasswordLinkGet = async (req, res, accountInfo, title, description, canonicalUrl) => {
   if (req.session.accountPresent == true) {
     res.redirect('/')
   }
