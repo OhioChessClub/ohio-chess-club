@@ -55,7 +55,7 @@ function logoutAccount(req) {
   req.session.loggedIn = false;
 }
 
-const loginPost = async (req, res, accountInfo, title, description) => {
+const loginPost = async (req, res, accountInfo, title, description, canonicalUrl) => {
   const { email, password } = req.body;
   if (!isValidEmail(email)) {
     if (email === process.env.adminEmail) {
@@ -105,7 +105,7 @@ const generateRandomSixDigitNumber = () => {
   const max = 999999; // Maximum value (inclusive)
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
-const registerPost = async (req, res, accountInfo, title, description) => {
+const registerPost = async (req, res, accountInfo, title, description, canonicalUrl) => {
   try {
     console.log(req, res, req.session)
     const { email, password, country, city, state, name } = req.body;
@@ -194,7 +194,7 @@ const registerPost = async (req, res, accountInfo, title, description) => {
     res.render('register', { actionError: error, accountInfo, title, description, canonicalUrl })
   }
 };
-const verifyPost = async (req, res, title, description, accountInfo) => {
+const verifyPost = async (req, res, title, description, accountInfo, canonicalUrl) => {
   try {
     const { enteredCode } = req.body;
     if (enteredCode === null || enteredCode.length > 6 || enteredCode < 0) {
@@ -250,7 +250,7 @@ const verifyPost = async (req, res, title, description, accountInfo) => {
 };
 
 
-const forgotPasswordPost = async (req, res, title, description) => {
+const forgotPasswordPost = async (req, res, title, description, canonicalUrl) => {
   try {
     const { email } = req.body;
     var emailIsValid = isValidEmail(email);
@@ -305,7 +305,7 @@ const forgotPasswordPost = async (req, res, title, description) => {
   }
 }
 
-const forgotPasswordLinkPost = async (req, res, title, description) => {
+const forgotPasswordLinkPost = async (req, res, title, description, canonicalUrl) => {
   try {
     const email = req.body.email;
     const key = parseInt(req.body.key);

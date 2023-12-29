@@ -33,7 +33,7 @@ function removeReturn(req, res) {
   req.session.loginReturnURL = null;
 }
 
-const contactPost = async (req, res, accountInfo, title, description, canonicalUrl) => {
+const contactPost = async (req, res, title, description, accountInfo, canonicalUrl) => {
   try {
     var formEnabled = true;
     if(formEnabled === true){
@@ -66,14 +66,14 @@ const contactPost = async (req, res, accountInfo, title, description, canonicalU
       html: contents,
     });
 
-    await importIntoDatabase(contactName, contactEmail, contactText, isFulfilled, req, res, canonicalUrl);
+    await importIntoDatabase(contactName, contactEmail, contactText, isFulfilled, req, res, title, description, accountInfo, canonicalUrl);
 
     var actionFinished = `Your request has been processed. You should be reached out to by email within 24 hours. A confirmation email has been sent to your email. (${contactEmail})`
-    res.render('contact', {actionFinished,accountInfo, title, description, canonicalUrl});
+    res.render('contact', {actionFinished,accountInfo, title, description, accountInfo, canonicalUrl});
     }
     else {
       var error = "The contact form is not avaliable to the public at this time."
-      res.render('contact', {actionError: error,accountInfo, title, description, canonicalUrl})
+      res.render('contact', {actionError: error,accountInfo, title, description, accountInfo, canonicalUrl})
 
     }
 
@@ -83,10 +83,15 @@ const contactPost = async (req, res, accountInfo, title, description, canonicalU
   }
 }
 
-function sendError(req, res, error, accountInfo){
+function sendError(req, res, error, title, description, accountInfo, canonicalUrl){
   console.log(`CONTACT ERROR: ` + error)
     var actionError = `There was an error sending your request. Our developers have been notified and are looking into it. We are sorry for the inconvienience.`;
-    res.render('contact', {actionError, accountInfo, canonicalUrl})
+    res.render('contact', {actionError, accountInfo, title, description, accountInfo, canonicalUrl})
+}
+
+const contactGet = async (req, res, accountInfo, title, description, canonicalUrl) => {
+  console.log(title, description, accountInfo, canonicalUrl)
+  res.render('contact', {title, description, accountInfo, canonicalUrl})
 }
 
 function importIntoDatabase(contactName, contactEmail, contactText, isFulfilled, req, res){
@@ -110,7 +115,8 @@ function importIntoDatabase(contactName, contactEmail, contactText, isFulfilled,
 
 
 module.exports = {
-  contactPost
+  contactPost,
+  contactGet
 };
 
 

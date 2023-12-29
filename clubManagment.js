@@ -60,7 +60,7 @@ async function checkAccess(req, res) {
 
 }
 
-const createClubPost = async (req, res, accountInfo, canonicalUrl) => {
+const createClubPost = async (req, res, title, description, accountInfo, canonicalUrl) => {
   var publiclyAvaliable = true;
 
   if (publiclyAvaliable === true) {
@@ -101,14 +101,14 @@ const createClubPost = async (req, res, accountInfo, canonicalUrl) => {
       res.redirect('/club-created')
     }
     catch (error) {
-      res.render('applyForClub', { actionError: "There was an error creating your club. Feel free to contact us for help. Error: " + error, accountInfo, canonicalUrl })
+      res.render('applyForClub', { actionError: "There was an error creating your club. Feel free to contact us for help. Error: " + error, title, description, accountInfo, canonicalUrl })
     }
   } else {
-    res.render('applyForClub', { actionError: "Creating clubs is not avaliable to the public at this time.", accountInfo, canonicalUrl })
+    res.render('applyForClub', { actionError: "Creating clubs is not avaliable to the public at this time.", title, description, accountInfo, canonicalUrl })
   }
 }
 
-const clubApplyGet = async (req, res, accountInfo, canonicalUrl) => {
+const clubApplyGet = async (req, res, title, description, accountInfo, canonicalUrl) => {
   if (!req.session.loggedIn) {
     await applyRes(req, res);
     await checkUserFile.checkForUser(req, res);
@@ -127,28 +127,28 @@ const clubApplyGet = async (req, res, accountInfo, canonicalUrl) => {
           if (results.length > 0) {
             res.redirect('/manage-club');
           } else {
-            res.render('applyForClub', { clubActive: false, accountInfo, canonicalUrl });
+            res.render('applyForClub', { clubActive: false, title, description, accountInfo, canonicalUrl });
           }
         }
       }
     }
     catch (error) {
       if (error) {
-        res.render('applyForClub', { clubActive: "error", accountInfo, canonicalUrl })
+        res.render('applyForClub', { clubActive: "error", title, description, accountInfo, canonicalUrl })
         return;
       }
     }
   }
 }
 
-const clubCreatedGet = async (req, res, accountInfo, canonicalUrl) => {
+const clubCreatedGet = async (req, res, title, description, accountInfo, canonicalUrl) => {
   try {
     if (!req.session.loggedIn) {
       await applyRes(req, res);
       await checkUserFile.checkForUser(req, res);
 
       if (res.headersSent) {
-        res.render('login', accountInfo, canonicalUrl);
+        res.render('login', title, description, accountInfo, canonicalUrl);
       }
     }
     else {
@@ -175,7 +175,8 @@ function removeEmailError(req, res) {
   req.session.errorEmailUsed = false;
 }
 
-const clubManageGet = async (req, res, accountInfo, canonicalUrl) => {
+const clubManageGet = async (req, res, accountInfo, title, description, canonicalUrl) => {
+  console.log(title, description)
   if (!req.session.loggedIn) {
     // await applyRes(req, res);
     await applyRes(req, res)
@@ -186,7 +187,7 @@ const clubManageGet = async (req, res, accountInfo, canonicalUrl) => {
       const query = { ownerEmail: req.session.email }
       var results = await unverifiedclubsModel.find(query);
       if (results[0] != undefined || results[0] != null || results[0] === "") {
-        res.render('manageClubUnverified', { accountInfo, canonicalUrl })
+        res.render('manageClubUnverified', { title, description, accountInfo, canonicalUrl })
       }
       else if (results[0] === undefined || results[0] === null || results[0] === "") {
         const query = { ownerEmail: req.session.email }
@@ -203,6 +204,8 @@ const clubManageGet = async (req, res, accountInfo, canonicalUrl) => {
             clubDescription: results[0].clubDescription,
             ownerEmail: results[0].ownerEmail,
             emailUsed: emailUsed,
+            title,
+            description,
             accountInfo,
             canonicalUrl
           });
@@ -221,7 +224,7 @@ const clubManageGet = async (req, res, accountInfo, canonicalUrl) => {
   }
 };
 
-const updateInfoPost = async (req, res, accountInfo, canonicalUrl) => {
+const updateInfoPost = async (req, res, title, description, accountInfo, canonicalUrl) => {
   try {
     const { clubName, clubOwnerName, clubDescription } = req.body;
     if (!req.session.loggedIn) {
@@ -229,7 +232,7 @@ const updateInfoPost = async (req, res, accountInfo, canonicalUrl) => {
       await checkUserFile.checkForUser(req, res);
 
       if (res.headersSent) {
-        res.render('login', accountInfo, canonicalUrl);
+        res.render('login', title, description, accountInfo, canonicalUrl);
       }
     }
     else {

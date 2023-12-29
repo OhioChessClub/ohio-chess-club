@@ -103,9 +103,12 @@ const homeRoute = async (req, res, accountInfo, title, description, canonicalUrl
 }
 
 
-
+const siteNotPublicRoute = async (req, res, title, description, canonicalUrl) => {
+  res.render('siteNotPublic', { title, description, accountInfo, canonicalUrl })
+}
 
 module.exports = {
-  homeRoute
+  homeRoute,
+  siteNotPublicRoute
 };
 

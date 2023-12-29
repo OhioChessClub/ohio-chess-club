@@ -1,18 +1,8 @@
-// LOAD DOTENV
-require('dotenv').config();
-
-
-
-// LOAD EXPRESS AND DEFINE EXPRESS MODULES
-const express = require('express')
-const mysql = require('mysql')
-const session = require('express-session')
-const app = express();
 const {
   usersModel
 } = require('./database')
 
-const loginGet = async (req, res, accountInfo, title, description, canonicalUrl) => {
+const loginGet = async (req, res, accountInfo, title, description, canonicalUrl ) => {
   if (req.session.accountPresent) {
     if (req.session.accountVerified === false) {
       res.redirect('/verify')
@@ -31,7 +21,7 @@ const loginGet = async (req, res, accountInfo, title, description, canonicalUrl)
   }
   else { res.redirect('/') }
 };
-const registerGet = async (req, res, accountInfo, title, description) => {
+const registerGet = async (req, res, accountInfo, title, description, canonicalUrl) => {
   if (req.session.accountPresent) {
     if (req.session.accountVerified === false) {
       res.redirect('/verify')
@@ -43,7 +33,7 @@ const registerGet = async (req, res, accountInfo, title, description) => {
   else { res.redirect('/') }
 
 };
-const verifyGet = async (req, res, accountInfo, title, description) => {
+const verifyGet = async (req, res, accountInfo, title, description, canonicalUrl) => {
   try {
     console.log(req.session)
     if (req.session.loggedIn) {
@@ -93,7 +83,7 @@ function applyRes(req, res) {
 
 const checkUserFile = require('./checkForUser')
 
-var forgotPasswordGet = async (req, res, accountInfo, title, description) => {
+var forgotPasswordGet = async (req, res, accountInfo, title, description, canonicalUrl) => {
   if (req.session.accountPresent == true) {
     res.redirect('/')
   }
