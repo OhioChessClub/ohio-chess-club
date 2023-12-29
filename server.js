@@ -28,12 +28,10 @@ app.use(session({
   saveUninitialized: false,
   name: 'session'
 }));
-
 app.use((req, res, next) => {
   res.locals.session = req.session;
   next();
 });
-
 app.use((req, res, next) => {
   res.set('Cache-Control', 'no-store')
   next()
@@ -61,6 +59,29 @@ var siteReleased = true;
   }
 })()
 
+async function getAccountInformation(req) {
+  if (req.session.email != undefined) {
+    var query = { email: req.session.email }
+    var data = await usersModel.find(query)
+    console.log(data)
+    const accountInfo = {
+      isVerified: data[0].isVerified,
+      email: data[0].email,
+      fullName: data[0].name,
+      country: data[0].country,
+      city: data[0].city,
+      state: data[0].state,
+      id: data[0]._id
+    }
+    return accountInfo
+  }
+  else {
+    return accountInfo = {
+      isLoggedIn: "no"
+    }
+  }
+
+}
 
 async function postReq(req, res, pageFunction, fileName) {
   const canonicalUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
@@ -96,33 +117,9 @@ async function postReqAdmin(req, res, pageFunction, fileName) {
     res.render('acceptCookies', { title, description })
   }
 }
-async function getAccountInformation(req) {
-  if (req.session.email != undefined) {
-    var query = { email: req.session.email }
-    var data = await usersModel.find(query)
-    console.log(data)
-    const accountInfo = {
-      isVerified: data[0].isVerified,
-      email: data[0].email,
-      fullName: data[0].name,
-      country: data[0].country,
-      city: data[0].city,
-      state: data[0].state,
-      id: data[0]._id
-    }
-    return accountInfo
-  }
-  else {
-    return accountInfo = {
-      isLoggedIn: "no"
-    }
-  }
-
-}
-
-
 
 async function RenderPage(fileName, req, res, pageFunction) {
+  await updateViews();
   const canonicalUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
   var hasAcceptedCookies = req.session.acceptedCookies;
   var title = getTitleFromFile(fileName)
@@ -168,7 +165,7 @@ async function RenderPageAdmin(fileName, req, res, pageFunction) {
 }
 
 
-if (isPublic) {
+if (isPublic == true) {
   // POST REQUESTS
   app.post('/register', (req, res) => {
     var fileName = "register"
@@ -341,7 +338,7 @@ if (isPublic) {
     res.status(404).render('404.ejs');
   });
 }
-else if (isPublic === false) {
+else if (isPublic == false) {
   app.get('/', async (req, res) => {
     var fileName = "siteNotPublic";
     var pageFunction = homeRoute.siteNotPublicRoute
