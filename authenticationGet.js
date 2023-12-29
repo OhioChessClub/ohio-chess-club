@@ -12,7 +12,7 @@ const {
   usersModel
 } = require('./database')
 
-const loginGet = async (req, res, accountInfo, title, description) => {
+const loginGet = async (req, res, accountInfo, title, description, canonicalUrl) => {
   if (req.session.accountPresent) {
     if (req.session.accountVerified === false) {
       res.redirect('/verify')
@@ -22,10 +22,10 @@ const loginGet = async (req, res, accountInfo, title, description) => {
     if (req.session.forgotPasswordSuccess) {
       var actionSuccess = req.session.forgotPasswordSuccess;
       req.session.forgotPasswordSuccess = null;
-      res.render('login', { accountInfo, title, description, actionSuccess })
+      res.render('login', { accountInfo, title, description, actionSuccess, canonicalUrl })
     }
     else {
-      res.render('login', { accountInfo, title, description })
+      res.render('login', { accountInfo, title, description, canonicalUrl })
     }
 
   }
@@ -38,7 +38,7 @@ const registerGet = async (req, res, accountInfo, title, description) => {
     }
   }
   else if (!req.session.loggedIn) {
-    res.render('register', { accountInfo, title, description })
+    res.render('register', { accountInfo, title, description, canonicalUrl })
   }
   else { res.redirect('/') }
 
@@ -68,7 +68,7 @@ const verifyGet = async (req, res, accountInfo, title, description) => {
         }
 
 
-        res.render('verify', { email: req.session.email, accountInfo, title, description });
+        res.render('verify', { email: req.session.email, accountInfo, title, description, canonicalUrl });
         return;
 
       } else {
@@ -101,15 +101,15 @@ var forgotPasswordGet = async (req, res, accountInfo, title, description) => {
     if (req.session.forgotPasswordError) {
       var actionError = req.session.forgotPasswordError;
       req.session.forgotPasswordError = null;
-      res.render('forgotPassword', { title, description, accountInfo, actionError })
+      res.render('forgotPassword', { title, description, accountInfo, actionError, canonicalUrl })
     }
     if (req.session.forgotPasswordSuccess) {
       var actionSuccess = req.session.forgotPasswordSuccess;
       req.session.forgotPasswordSuccess = null;
-      res.render('forgotPassword', { title, description, accountInfo, actionSuccess })
+      res.render('forgotPassword', { title, description, accountInfo, actionSuccess, canonicalUrl })
     }
     else {
-      res.render('forgotPassword', { title, description, accountInfo })
+      res.render('forgotPassword', { title, description, accountInfo, canonicalUrl })
     }
 
   }
@@ -127,19 +127,19 @@ var forgotPasswordLinkGet = async (req, res, accountInfo, title, description) =>
       var data = await usersModel.find(filter)
       if (data.length > 0) {
         if (data[0].changePasswordCode === parseInt(key)) {
-          res.render('forgotPasswordLink', { title, description, accountInfo, email, key })
+          res.render('forgotPasswordLink', { title, description, accountInfo, email, key, canonicalUrl })
         }
         else {
-          res.render('forgotPasswordUnauthorized', { title, description, accountInfo })
+          res.render('forgotPasswordUnauthorized', { title, description, accountInfo, canonicalUrl })
         }
       }
       else {
-        res.render('forgotPasswordUnauthorized', { title, description, accountInfo })
+        res.render('forgotPasswordUnauthorized', { title, description, accountInfo, canonicalUrl })
       }
 
     }
     else {
-      res.render('forgotPasswordUnauthorized', { title, description, accountInfo })
+      res.render('forgotPasswordUnauthorized', { title, description, accountInfo, canonicalUrl })
     }
 
   }

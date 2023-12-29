@@ -6,6 +6,7 @@
     <link rel="manifest" href="manifest.json">
     <script src="https://kit.fontawesome.com/3e69591437.js" crossorigin="anonymous"></script>
     <link href="/css/allFrontend.css" rel="stylesheet">
+    <link rel="canonical" href="<%- canonicalUrl -%>">
     <meta name="keywords" content="Chess, Free, Learning">
     <meta name="author" content="Ohio Chess Club">
     <meta name="description" content="<%- description -%>">
@@ -116,10 +117,10 @@
     var accountDeleteInput = document.getElementById('accountDeleteInput');
     var accountDeleteButton = document.getElementById('accountDeleteButton');
     accountDeleteInput.addEventListener('input', () => {
-        if(accountDeleteInput.value === "confirmdelete"){
+        if (accountDeleteInput.value === "confirmdelete") {
             accountDeleteButton.disabled = false;
         }
-        else{
+        else {
             accountDeleteButton.disabled = true;
         }
     })

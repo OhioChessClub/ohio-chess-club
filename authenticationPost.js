@@ -62,7 +62,7 @@ const loginPost = async (req, res, accountInfo, title, description) => {
       // Admin attempting to log in, don't stop it
     }
     else {
-      res.render('login', { actionError: "That email is not valid.", accountInfo, title, description })
+      res.render('login', { actionError: "That email is not valid.", accountInfo, title, description, canonicalUrl })
     }
   }
   const query = { email: email };
@@ -89,14 +89,14 @@ const loginPost = async (req, res, accountInfo, title, description) => {
           else { return res.redirect('/') };
         }
       } else {
-        res.render('login', { actionError: "Incorrect password for that email.", accountInfo, title, description })
+        res.render('login', { actionError: "Incorrect password for that email.", accountInfo, title, description, canonicalUrl })
       }
     } else {
-      res.render('login', { actionError: "No user with that email exists.", accountInfo, title, description })
+      res.render('login', { actionError: "No user with that email exists.", accountInfo, title, description, canonicalUrl })
     }
   } catch (error) {
     console.error(error);
-    res.render('login', { actionError: `Error logging in: ${error}`, accountInfo, title, description })
+    res.render('login', { actionError: `Error logging in: ${error}`, accountInfo, title, description, canonicalUrl })
   }
 };
 
@@ -114,28 +114,28 @@ const registerPost = async (req, res, accountInfo, title, description) => {
     var noEmailError = "Please enter a valid email."
     var noNameError = "Please enter a name."
     if (password === null || password === undefined || password === "") {
-      res.render('register', { actionError: noPassError, accountInfo, title, description })
+      res.render('register', { actionError: noPassError, accountInfo, title, description, canonicalUrl })
     }
     if (name === null || name === undefined || name === "") {
-      res.render('register', { actionError: noNameError, accountInfo, title, description })
+      res.render('register', { actionError: noNameError, accountInfo, title, description, canonicalUrl })
     }
     if (email === null || email === undefined || email === "" || !isValidEmail(email)) {
-      res.render('register', { actionError: noEmailError, accountInfo, title, description })
+      res.render('register', { actionError: noEmailError, accountInfo, title, description, canonicalUrl })
     }
     else if (country && city === null || country && city === undefined || country && city === "") {
-      res.render('register', { actionError: nullError, accountInfo, title, description })
+      res.render('register', { actionError: nullError, accountInfo, title, description, canonicalUrl })
     }
     else if (city === null || city === undefined || city === "") {
-      res.render('register', { actionError: nullError, accountInfo, title, description })
+      res.render('register', { actionError: nullError, accountInfo, title, description, canonicalUrl })
     }
     else if (country === null || country === undefined || country === "") {
-      res.render('register', { actionError: nullError, accountInfo, title, description })
+      res.render('register', { actionError: nullError, accountInfo, title, description, canonicalUrl })
     }
     else {
       const query = { email: email };
       var results = await usersModel.find(query)
       if (results.length > 0) {
-        res.render('register', { actionError: "A user with that email already exists.", accountInfo, title, description })
+        res.render('register', { actionError: "A user with that email already exists.", accountInfo, title, description, canonicalUrl })
       } else {
         try {
           const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -184,14 +184,14 @@ const registerPost = async (req, res, accountInfo, title, description) => {
         catch (error) {
           if (error) {
             console.error(error);
-            res.render('register', { actionError: error, accountInfo, title, description })
+            res.render('register', { actionError: error, accountInfo, title, description, canonicalUrl })
           }
         }
       }
     }
   } catch (error) {
     console.error(error);
-    res.render('register', { actionError: error, accountInfo, title, description })
+    res.render('register', { actionError: error, accountInfo, title, description, canonicalUrl })
   }
 };
 const verifyPost = async (req, res, title, description, accountInfo) => {
@@ -199,7 +199,7 @@ const verifyPost = async (req, res, title, description, accountInfo) => {
     const { enteredCode } = req.body;
     if (enteredCode === null || enteredCode.length > 6 || enteredCode < 0) {
       var actionError = "Number cannot be less than zero or more than six characters."
-      res.render('verify', { actionError: actionError, email: req.session.email, accountInfo, title, description })
+      res.render('verify', { actionError: actionError, email: req.session.email, accountInfo, title, description, canonicalUrl })
       return
     }
     else if (req.session.email === null | req.session.email === undefined) {
@@ -240,11 +240,11 @@ const verifyPost = async (req, res, title, description, accountInfo) => {
       logInAccount(req, res, email)
       res.redirect('/');
     } else {
-      res.render('verify', { actionError: "Incorrect code. Try again.", email: req.session.email, accountInfo, title, description });
+      res.render('verify', { actionError: "Incorrect code. Try again.", email: req.session.email, accountInfo, title, description, canonicalUrl });
     }
   } catch (error) {
     var email = req.session.email
-    res.render('verify', { actionError: "There was an error verifying your account. Please send a contact request to let us know, and we will help you out. Error: " + error, accountInfo, title, description, email })
+    res.render('verify', { actionError: "There was an error verifying your account. Please send a contact request to let us know, and we will help you out. Error: " + error, accountInfo, title, description, email, canonicalUrl })
     console.log("ERROR VERIFYING ACCOUNT: " + error)
   }
 };
@@ -317,7 +317,7 @@ const forgotPasswordLinkPost = async (req, res, title, description) => {
             var password = req.body.password;
             if (password === null || password === undefined || password === "") {
               var noPassError = "Please enter a password."
-              res.render('forgotPasswordLink', { title, description, email, key, accountInfo, actionError: noPassError })
+              res.render('forgotPasswordLink', { title, description, email, key, accountInfo, actionError: noPassError, canonicalUrl })
               return;
             }
               var hashedPassword = await bcrypt.hash(password, 10)
@@ -351,11 +351,11 @@ const forgotPasswordLinkPost = async (req, res, title, description) => {
         }
       }
       else {
-        res.render('forgotPasswordUnauthorized', { title, description, accountInfo })
+        res.render('forgotPasswordUnauthorized', { title, description, accountInfo, canonicalUrl })
       }
     }
     else {
-      res.render('forgotPasswordUnauthorized', { title, description, accountInfo })
+      res.render('forgotPasswordUnauthorized', { title, description, accountInfo, canonicalUrl })
     }
   } catch (error) {
     if (error) {

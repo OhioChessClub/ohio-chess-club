@@ -33,7 +33,7 @@ function removeReturn(req, res) {
   req.session.loginReturnURL = null;
 }
 
-const contactPost = async (req, res, accountInfo, title, description) => {
+const contactPost = async (req, res, accountInfo, title, description, canonicalUrl) => {
   try {
     var formEnabled = true;
     if(formEnabled === true){
@@ -66,14 +66,14 @@ const contactPost = async (req, res, accountInfo, title, description) => {
       html: contents,
     });
 
-    await importIntoDatabase(contactName, contactEmail, contactText, isFulfilled, req, res);
+    await importIntoDatabase(contactName, contactEmail, contactText, isFulfilled, req, res, canonicalUrl);
 
     var actionFinished = `Your request has been processed. You should be reached out to by email within 24 hours. A confirmation email has been sent to your email. (${contactEmail})`
-    res.render('contact', {actionFinished,accountInfo, title, description});
+    res.render('contact', {actionFinished,accountInfo, title, description, canonicalUrl});
     }
     else {
       var error = "The contact form is not avaliable to the public at this time."
-      res.render('contact', {actionError: error,accountInfo, title, description})
+      res.render('contact', {actionError: error,accountInfo, title, description, canonicalUrl})
 
     }
 
@@ -86,7 +86,7 @@ const contactPost = async (req, res, accountInfo, title, description) => {
 function sendError(req, res, error, accountInfo){
   console.log(`CONTACT ERROR: ` + error)
     var actionError = `There was an error sending your request. Our developers have been notified and are looking into it. We are sorry for the inconvienience.`;
-    res.render('contact', {actionError, accountInfo})
+    res.render('contact', {actionError, accountInfo, canonicalUrl})
 }
 
 function importIntoDatabase(contactName, contactEmail, contactText, isFulfilled, req, res){

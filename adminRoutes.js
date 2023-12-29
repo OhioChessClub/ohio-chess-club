@@ -41,11 +41,9 @@ let contactRequests
 let clubs;
 let totalViews;
 
-const admin = async (req, res, accountInfo, title, description) => {
+const admin = async (req, res, accountInfo, title, description, canonicalUrl) => {
   try {
     var fileName = process.env.ADMIN_UPDATE_PAGE
-    const title = await getTitleFromFile(fileName)
-    const description = await getDescFromFile(fileName)
     var featuresResults = await featuresModel.find();
     feature1title = featuresResults[0].nameOfFeature;
     feautre1fontawesome = featuresResults[0].classValue;
@@ -107,7 +105,8 @@ const admin = async (req, res, accountInfo, title, description) => {
       description,
       accountInfo,
       title,
-      description
+      description,
+      canonicalUrl
     });
 
 

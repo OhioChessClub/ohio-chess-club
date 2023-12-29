@@ -67,6 +67,7 @@ if (isPublic) {
   })()
   // DEPRACATED SOON WHEN VIDEO BECOMES AVALIABLE
   function shouldRenderPage(fileName, req, res) {
+    const canonicalUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
     var hasAcceptedCookies = req.session.acceptedCookies;
     if (hasAcceptedCookies === true) {
       return 'Continue'
@@ -77,7 +78,7 @@ if (isPublic) {
       const accountInfo = {
         isLoggedIn: "no"
       }
-      res.render('acceptCookies', { title, description, accountInfo })
+      res.render('acceptCookies', { title, description, accountInfo, canonicalUrl })
     }
   }
   async function getAccountInformation(req) {
@@ -104,12 +105,13 @@ if (isPublic) {
 
   }
   async function RenderPage(fileName, req, res, pageFunction) {
+    const canonicalUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
     var hasAcceptedCookies = req.session.acceptedCookies;
     if (hasAcceptedCookies === true) {
       var title = getTitleFromFile(fileName)
       var description = getDescFromFile(fileName)
       const accountInfo = await getAccountInformation(req)
-      pageFunction(req, res, accountInfo, title, description)
+      pageFunction(req, res, accountInfo, title, description, canonicalUrl)
     }
     else {
       var title = getTitleFromFile(fileName)
@@ -117,14 +119,14 @@ if (isPublic) {
       const accountInfo = {
         isLoggedIn: "no"
       }
-      res.render('acceptCookies', { title, description, accountInfo })
+      res.render('acceptCookies', { title, description, accountInfo, canonicalUrl })
     }
   }
   async function postReq(req, res, pageFunction) {
     var hasAcceptedCookies = req.session.acceptedCookies;
     if (hasAcceptedCookies === true) {
       const accountInfo = await getAccountInformation(req)
-      pageFunction(req, res, accountInfo)
+      pageFunction(req, res, accountInfo, canonicalUrl)
     }
     else {
       res.send('You have not accepted cookies. Cannot follow up on post request.')
@@ -147,7 +149,7 @@ if (isPublic) {
           id: data[0]._id
         }
         console.log(accountInfo)
-        pageFunction(req, res, accountInfo)
+        pageFunction(req, res, accountInfo, canonicalUrl)
       }
       else {
         res.send('You are not authorized to do this action. Please sign in again if you think you should be.')
@@ -160,6 +162,7 @@ if (isPublic) {
     }
   }
   async function RenderPageAdmin(fileName, req, res, pageFunction) {
+    const canonicalUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
     var hasAcceptedCookies = req.session.acceptedCookies;
     if (hasAcceptedCookies === true) {
       var isAdmin = checkForAdmin(req, res);
@@ -177,7 +180,7 @@ if (isPublic) {
             id: data[0]._id
           }
           console.log(accountInfo)
-          pageFunction(req, res, accountInfo)
+          pageFunction(req, res, accountInfo, canonicalUrl)
         }
         else {
           var query = { email: req.session.email }
@@ -192,7 +195,7 @@ if (isPublic) {
             id: data[0]._id
           }
           console.log(accountInfo)
-          renderView(fileName, req, res, accountInfo)
+          renderView(fileName, req, res, accountInfo, canonicalUrl)
         }
       }
       else {
@@ -211,6 +214,7 @@ if (isPublic) {
   }
   async function RenderPagePlain(fileName, req, res) {
     var hasAcceptedCookies = req.session.acceptedCookies;
+    const canonicalUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
     if (hasAcceptedCookies === true) {
       var query = { email: req.session.email }
       var data = await usersModel.find(query)
@@ -231,7 +235,7 @@ if (isPublic) {
           isLoggedIn: "no"
         }
       }
-      renderView(fileName, req, res, accountInfo)
+      renderView(fileName, req, res, accountInfo, canonicalUrl)
     }
     else {
       var title = getTitleFromFile(fileName)
@@ -396,13 +400,10 @@ if (isPublic) {
     RenderPagePlain(fileName, req, res)
   })
   app.get('/sitemap.xml', (req, res) => {
-    res.sendFile('C:\\Users\\colew\\OneDrive\\Documents\\dev-projects\\server\\sitemap.xml')
+    res.sendFile('C:\\Users\\colew\\OneDrive\\Documents\\server\\sitemap.xml')
   })
-  app.get('/socketScript', (req, res) => {
-    res.sendFile('C:\\Users\\colew\\OneDrive\\Documents\\dev-projects\\server\\socket.js')
-  })
-  app.get('/chessScript', (req, res) => {
-    res.sendFile('C:\\Users\\colew\\OneDrive\\Documents\\dev-projects\\server\\chess.js')
+  app.get('/sitemap2.xml', (req, res) => {
+    res.sendFile('C:\\Users\\colew\\OneDrive\\Documents\\server\\sitemap2.xml')
   })
   app.use(async (req, res) => {
     res.status(404).render('404.ejs');
