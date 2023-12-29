@@ -32,14 +32,6 @@ The client-side code is located in the `/views` folder, while everything else pe
 
 Within 2 days of this commit, expect the following updates:
 
-- **Forgot Password:**
-  - Password reset functionality with email verification.
-  - Feature to request assistance if password reset cannot be fulfilled.
-
-- **Change Password**
-  - Lets you change your account password. Will be a seperate get request linked from the account UI.
-  - Will require knowing the current password unlike forgot password.
-
 - **Limitations**
   - Rate limiting of post and get requests. 
   - Special limits for changing password per account. (forgot and plain change.)
