@@ -1,8 +1,7 @@
 const {
   usersModel
 } = require('./database')
-
-const loginGet = async (req, res, accountInfo, title, description, canonicalUrl ) => {
+const loginGet = async (req, res, accountInfo, title, description, canonicalUrl) => {
   if (req.session.accountPresent) {
     if (req.session.accountVerified === false) {
       res.redirect('/verify')
@@ -75,15 +74,7 @@ const verifyGet = async (req, res, accountInfo, title, description, canonicalUrl
     }
   }
 };
-
-function applyRes(req, res) {
-  req.session.loginReturnURL = `/apply`;
-
-}
-
-const checkUserFile = require('./checkForUser')
-
-var forgotPasswordGet = async (req, res, accountInfo, title, description, canonicalUrl) => {
+const forgotPasswordGet = async (req, res, accountInfo, title, description, canonicalUrl) => {
   if (req.session.accountPresent == true) {
     res.redirect('/')
   }
@@ -104,8 +95,7 @@ var forgotPasswordGet = async (req, res, accountInfo, title, description, canoni
 
   }
 }
-
-var forgotPasswordLinkGet = async (req, res, accountInfo, title, description, canonicalUrl) => {
+const forgotPasswordLinkGet = async (req, res, accountInfo, title, description, canonicalUrl) => {
   if (req.session.accountPresent == true) {
     res.redirect('/')
   }

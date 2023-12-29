@@ -11,9 +11,6 @@ const transporter = nodeMailer.createTransport({
     pass: 'kjodasdsoxunxpbm'
   }
 });
-// LOAD BCRYPT
-const bcrypt = require('bcrypt')
-
 const {
   featuresModel,
   titlesModel,
@@ -145,7 +142,6 @@ const verifyClub = async (req, res) => {
     }
   }
 }
-
 const markContactResolved = async (req, res) => {
   const { questionID } = req.body;
   if (questionID === null || questionID === undefined || questionID === "") {
@@ -166,11 +162,10 @@ const markContactResolved = async (req, res) => {
   }
 }
 
-
-// LOCKDOWN ADMIN (TO USE: COMMENT OUT THE CODE ABOVE AND UNCOMMENT THE CODE BELOW)
-
 const currentIssue = 'No current issues detected in this commit.'
 const textResponse = `We are sorry, but admin features are disabled at the moment for all admins. The dev time are aware of this, and are working to fix the reason this is happening. Please hang tight while we work on this issue. <br>Current Issue: ${currentIssue}`
+
+// LOCKDOWN ADMIN (TO USE: COMMENT OUT THE CODE ABOVE AND UNCOMMENT THE CODE BELOW)
 
 // const updatefeaturetitleanddesc = async (req, res) => {
 //   res.send(`${textResponse}`)

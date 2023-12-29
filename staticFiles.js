@@ -1,12 +1,10 @@
 // staticFiles.js
 const express = require('express');
 const app = express();
-
 app.use((req, res, next) => {
   res.set('Cache-Control', 'no-store')
   next()
 })
-
 app.get('/fonts/google-concertone.ttf', (req, res) => {
   res.sendFile('C:\\Users\\colew\\OneDrive\\Documents\\server\\views\\fonts\\google-concertone.ttf');
 });

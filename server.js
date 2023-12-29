@@ -60,22 +60,8 @@ var siteReleased = true;
     console.log("Server file has confirmed that database has connected.");
   }
 })()
-// DEPRACATED SOON WHEN VIDEO BECOMES AVALIABLE
-function shouldRenderPage(fileName, req, res) {
-  const canonicalUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
-  var hasAcceptedCookies = req.session.acceptedCookies;
-  if (hasAcceptedCookies === true) {
-    return 'Continue'
-  }
-  else {
-    var title = getTitleFromFile(fileName)
-    var description = getDescFromFile(fileName)
-    const accountInfo = {
-      isLoggedIn: "no"
-    }
-    res.render('acceptCookies', { title, description, accountInfo, canonicalUrl })
-  }
-}
+
+
 async function postReq(req, res, pageFunction, fileName) {
   const canonicalUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
   var title = getTitleFromFile(fileName)
@@ -315,7 +301,6 @@ if (isPublic) {
     var pageFunction = homeRoute.homeRoute
     RenderPage(fileName, req, res, pageFunction)
   });
-  // TEMPORARY CODE WILL BE CHANGED TO REUSABLE CODE ONCE VIDEO RELEASED
   app.get('/introductory-video', async (req, res) => {
     var fileName = "introductory-video";
     var pageFunction = introductoryVideo.introductoryVideoRoute

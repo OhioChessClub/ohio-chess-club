@@ -1,9 +1,6 @@
 const {
     usersModel
 } = require('./database')
-
-//   await checkUserFile.checkForUser(req, res);
-
 const checkForUser = async (req, res) => {
     try {
         if (req.session.email === null | req.session.email === undefined) {
@@ -36,7 +33,6 @@ const checkForUser = async (req, res) => {
         }
     }
 }
-
 module.exports = {
     checkForUser
 }

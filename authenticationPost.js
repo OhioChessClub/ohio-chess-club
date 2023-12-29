@@ -10,10 +10,6 @@ const bcrypt = require('bcrypt')
 const {
   usersModel
 } = require('./database')
-
-// LOAD EXPRESS AND DEFINE EXPRESS MODULES
-const express = require('express')
-const session = require('express-session')
 const nodeMailer = require('nodemailer')
 const transporter = nodeMailer.createTransport({
   host: 'smtp.gmail.com',
@@ -26,35 +22,8 @@ const transporter = nodeMailer.createTransport({
 });
 
 
-function isValidEmail(email) {
-  // Regular expression for a simple email validation
-  var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-
-function removeReturn(req, res) {
-  req.session.loginReturnURL = null;
-}
-
-function accountNotVerified(req, res, email) {
-  req.session.email = email;
-  req.session.accountPresent = true;
-  req.session.accountVerified = false;
-  req.session.loggedIn = false;
-}
-function logInAccount(req, res, email) {
-  req.session.loggedIn = true;
-  req.session.email = email;
-  req.session.accountPresent = true;
-  req.session.accountVerified = true;
-}
-function logoutAccount(req) {
-  req.session.email = null;
-  req.session.accountPresent = false;
-  req.session.accountVerified = false;
-  req.session.loggedIn = false;
-}
-
+const { isValidEmail, generateRandomSixDigitNumber } = require('./regex')
+const { accountNotVerified, logInAccount, logoutAccount, removeReturn } = require('./sessionChanges')
 const loginPost = async (req, res, accountInfo, title, description, canonicalUrl) => {
   const { email, password } = req.body;
   if (!isValidEmail(email)) {
@@ -98,12 +67,6 @@ const loginPost = async (req, res, accountInfo, title, description, canonicalUrl
     console.error(error);
     res.render('login', { actionError: `Error logging in: ${error}`, accountInfo, title, description, canonicalUrl })
   }
-};
-
-const generateRandomSixDigitNumber = () => {
-  const min = 100000; // Minimum value (inclusive)
-  const max = 999999; // Maximum value (inclusive)
-  return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 const registerPost = async (req, res, accountInfo, title, description, canonicalUrl) => {
   try {
@@ -248,8 +211,6 @@ const verifyPost = async (req, res, title, description, accountInfo, canonicalUr
     console.log("ERROR VERIFYING ACCOUNT: " + error)
   }
 };
-
-
 const forgotPasswordPost = async (req, res, title, description, canonicalUrl) => {
   try {
     const { email } = req.body;
@@ -304,7 +265,6 @@ const forgotPasswordPost = async (req, res, title, description, canonicalUrl) =>
     }
   }
 }
-
 const forgotPasswordLinkPost = async (req, res, title, description, canonicalUrl) => {
   try {
     const email = req.body.email;
@@ -314,16 +274,16 @@ const forgotPasswordLinkPost = async (req, res, title, description, canonicalUrl
       var data = await usersModel.find(filter)
       if (data.length > 0) {
         if (data[0].changePasswordCode != 0 && data[0].changePasswordCode === key) {
-            var password = req.body.password;
-            if (password === null || password === undefined || password === "") {
-              var noPassError = "Please enter a password."
-              res.render('forgotPasswordLink', { title, description, email, key, accountInfo, actionError: noPassError, canonicalUrl })
-              return;
-            }
-              var hashedPassword = await bcrypt.hash(password, 10)
-              await usersModel.findOneAndUpdate(filter, { password: hashedPassword })
-              await usersModel.findOneAndUpdate(filter, { changePasswordCode: 0 })
-              const contents = `
+          var password = req.body.password;
+          if (password === null || password === undefined || password === "") {
+            var noPassError = "Please enter a password."
+            res.render('forgotPasswordLink', { title, description, email, key, accountInfo, actionError: noPassError, canonicalUrl })
+            return;
+          }
+          var hashedPassword = await bcrypt.hash(password, 10)
+          await usersModel.findOneAndUpdate(filter, { password: hashedPassword })
+          await usersModel.findOneAndUpdate(filter, { changePasswordCode: 0 })
+          const contents = `
   <div class="container">
     <div class="content">
       <h1>Thanks for using our site!</h1>
@@ -339,15 +299,15 @@ const forgotPasswordLinkPost = async (req, res, title, description, canonicalUrl
   </div>
     `
 
-              await transporter.sendMail({
-                from: `Ohio Chess Club <ohiochessclub@gmail.com>`,
-                to: email,
-                subject: "Password Changed",
-                html: contents,
-              });
-              req.session.forgotPasswordSuccess = "Successfully changed password.";
-              res.redirect('/login')
-            
+          await transporter.sendMail({
+            from: `Ohio Chess Club <ohiochessclub@gmail.com>`,
+            to: email,
+            subject: "Password Changed",
+            html: contents,
+          });
+          req.session.forgotPasswordSuccess = "Successfully changed password.";
+          res.redirect('/login')
+
         }
       }
       else {
@@ -364,7 +324,6 @@ const forgotPasswordLinkPost = async (req, res, title, description, canonicalUrl
     }
   }
 }
-
 const deleteAccountPost = async (req, res) => {
   try {
     if (req.session.loggedIn) {

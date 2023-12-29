@@ -1,7 +1,3 @@
-// LOAD DOTENV
-require('dotenv').config();
-
-// LOAD MYSQL MODULES AND CONNECT TO DB
 const { 
   featuresModel,
   titlesModel,
@@ -10,9 +6,6 @@ const {
   contactrequestsModel,
   viewsModel
 } = require('./database')
-
-const pageRenderer = require('./pageRenderer')
-const { getDescFromFile, getTitleFromFile } = require('./pageRenderer')
 
 let feature1title;
 let feautre1fontawesome;
@@ -43,7 +36,6 @@ let totalViews;
 
 const admin = async (req, res, accountInfo, title, description, canonicalUrl) => {
   try {
-    var fileName = process.env.ADMIN_UPDATE_PAGE
     var featuresResults = await featuresModel.find();
     feature1title = featuresResults[0].nameOfFeature;
     feautre1fontawesome = featuresResults[0].classValue;
@@ -108,8 +100,6 @@ const admin = async (req, res, accountInfo, title, description, canonicalUrl) =>
       description,
       canonicalUrl
     });
-
-
   } catch (error) {
     console.error(error);
     res.status(500).send('An error occurred');
