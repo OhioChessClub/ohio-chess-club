@@ -61,7 +61,6 @@ function sendError(req, res, error, title, description, accountInfo, canonicalUr
 }
 
 const contactGet = async (req, res, accountInfo, title, description, canonicalUrl) => {
-  console.log(title, description, accountInfo, canonicalUrl)
   res.render('contact', { title, description, accountInfo, canonicalUrl })
 }
 

@@ -1,3 +1,11 @@
+// FALSE: WEBSITE IN "LOCKDOWN" COULD BE USED FOR BIG ISSUES
+// TRUE: WESITE FUNCTIONS LIKE NORMAL
+var isPublic = true;
+
+// FALSE: WEBSITE IS STILL IN MAJOR DEVELOPMENT AND NOT RELEASED TO THE PUBLIC YET. BOTH HAVE DIFFERENT MEANINGS.
+// TRUE: WESITE FUNCTIONS LIKE NORMAL
+var siteReleased = true;
+
 // REQUIRE STATMENTS AND IMPORTS
 require('dotenv').config()
 const nocache = require('nocache');
@@ -41,15 +49,6 @@ app.set('view engine', 'ejs')
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(nocache());
-
-// FALSE: WEBSITE IN "LOCKDOWN" COULD BE USED FOR BIG ISSUES
-// TRUE: WESITE FUNCTIONS LIKE NORMAL
-var isPublic = true;
-
-// FALSE: WEBSITE IS STILL IN MAJOR DEVELOPMENT AND NOT RELEASED TO THE PUBLIC YET. BOTH HAVE DIFFERENT MEANINGS.
-// TRUE: WESITE FUNCTIONS LIKE NORMAL
-var siteReleased = true;
-
 
 // FUNCTIONS
 (async () => {
