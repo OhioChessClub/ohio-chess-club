@@ -50,3 +50,10 @@ database=ohiochessclub         # Name of the database to store website data
 port=80                        # Port to host website on
 smtpAuthUser=oh...@gmail.com   # Email to use when sending emails
 smtpAuthPass=abcdefghijklmnop  # APP password generated in account manager
+```
+
+## Credits
+
+- Site Developer: Cole Bauml
+- Video Scripts / Video Appearances (lots of): Michael Bauml
+- Tournament Organizer: Michael Bauml
