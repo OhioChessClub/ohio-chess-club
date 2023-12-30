@@ -48,7 +48,7 @@ const getLimiter = rateLimit({
   message: "Too many requests from this IP detected. Try again in 15 minutes."
 })
 app.use(session({
-  secret: 'WEqwewqewq4F5WEQWEFQW',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   name: 'session',
