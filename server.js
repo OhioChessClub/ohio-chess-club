@@ -4,7 +4,7 @@ var isPublic = true;
 
 // FALSE: WEBSITE IS STILL IN MAJOR DEVELOPMENT AND NOT RELEASED TO THE PUBLIC YET. BOTH HAVE DIFFERENT MEANINGS.
 // TRUE: WESITE FUNCTIONS LIKE NORMAL
-var siteReleased = false;
+var siteReleased = true;
 
 // REQUIRE STATMENTS AND IMPORTS
 require('dotenv').config()
@@ -131,9 +131,7 @@ async function postReqAdmin(req, res, pageFunction, fileName) {
       }
     }
     else {
-      var title = getTitleFromFile(fileName)
-      var description = getDescFromFile(fileName)
-      res.render('acceptCookies', { title, description })
+      res.send('You have not accepted cookies. Cannot follow up on post request.')
     }
   })
 
