@@ -32,10 +32,6 @@ The client-side code is located in the `/views` folder, while everything else pe
 
 Within 2 days of this commit, expect the following updates:
 
-- **Limitations**
-  - Rate limiting of post and get requests. 
-  - Special limits for changing password per account. (forgot and plain change.)
-
 - **Password Requirments**
   - Make passwords have certain requirments so they are not insecure.
   - Client side and server side detections.
@@ -51,3 +47,5 @@ adminEmail=admin               # Admin account email (coded into the website so 
 databaseURL=localhost          # MongoDB hosted on the same computer
 database=ohiochessclub         # Name of the database to store website data
 port=80                        # Port to host website on
+smtpAuthUser=oh...@gmail.com   # Email to use when sending emails
+smtpAuthPass=abcdefghijklmnop  # APP password generated in account manager
