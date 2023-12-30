@@ -36,6 +36,10 @@ Within 2 days of this commit, expect the following updates:
   - Rate limiting of post and get requests. 
   - Special limits for changing password per account. (forgot and plain change.)
 
+- **Password Requirments**
+  - Make passwords have certain requirments so they are not insecure.
+  - Client side and server side detections.
+
 ## Configuration
 
 Before using the site, ensure the following configurations in the `.env` file:
