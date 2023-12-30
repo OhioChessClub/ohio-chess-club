@@ -4,7 +4,7 @@ const {
 
 const { transporter } = require('./nodeMailer')
 
-const contactPost = async (req, res, title, description, accountInfo, canonicalUrl) => {
+const contactPost = async (req, res, accountInfo, title, description, canonicalUrl) => {
   try {
     var formEnabled = true;
     if (formEnabled === true) {

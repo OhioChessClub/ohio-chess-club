@@ -64,7 +64,7 @@ function getDescFromFile(fileName) {
         return "Non-Existant"
     }
 }
-async function updateViews(req, res) {
+async function updateViews() {
     try {
         var query = { id: 1 }
         var results = await viewsModel.find(query)

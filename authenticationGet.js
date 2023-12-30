@@ -34,7 +34,6 @@ const registerGet = async (req, res, accountInfo, title, description, canonicalU
 };
 const verifyGet = async (req, res, accountInfo, title, description, canonicalUrl) => {
   try {
-    console.log(req.session)
     if (req.session.loggedIn) {
       res.redirect('/')
       return;
@@ -47,10 +46,8 @@ const verifyGet = async (req, res, accountInfo, title, description, canonicalUrl
           res.redirect('login');
           return;
         }
-        console.log(email)
         const query = { email: email }
         var results = await usersModel.findOne(query)
-        console.log(results)
         if (results.length === 0) {
           res.redirect('login');
           return;

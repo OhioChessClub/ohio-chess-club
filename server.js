@@ -63,7 +63,6 @@ async function getAccountInformation(req) {
   if (req.session.email != undefined) {
     var query = { email: req.session.email }
     var data = await usersModel.find(query)
-    console.log(data)
     const accountInfo = {
       isVerified: data[0].isVerified,
       email: data[0].email,

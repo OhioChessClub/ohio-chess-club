@@ -1,17 +1,9 @@
-// LOAD DOTENV
-require('dotenv').config();
-
-
-
-// LOAD BCRYPT
-const bcrypt = require('bcrypt')
-
-
 const {
   usersModel
 } = require('./database')
 
 const { transporter } = require('./nodeMailer')
+const bcrypt = require('bcrypt')
 
 const { isValidEmail, generateRandomSixDigitNumber } = require('./regex')
 const { accountNotVerified, logInAccount, logoutAccount, removeReturn } = require('./sessionChanges')
@@ -39,7 +31,6 @@ const loginPost = async (req, res, accountInfo, title, description, canonicalUrl
           return;
         }
         else {
-          console.log(results[0].isVerified)
           await logInAccount(req, res, email)
           if (req.session.loginReturnURL != null && req.session.loginReturnURL != undefined) {
             const returnUrl = req.session.loginReturnURL;
@@ -61,7 +52,6 @@ const loginPost = async (req, res, accountInfo, title, description, canonicalUrl
 };
 const registerPost = async (req, res, accountInfo, title, description, canonicalUrl) => {
   try {
-    console.log(req, res, req.session)
     const { email, password, country, city, state, name } = req.body;
     var nullError = "Please make sure that you have entered your country and city."
     var noPassError = "Please enter a password."

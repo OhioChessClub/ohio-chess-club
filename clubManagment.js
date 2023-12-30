@@ -31,7 +31,7 @@ async function checkAccess(req, res) {
 
 }
 
-const createClubPost = async (req, res, title, description, accountInfo, canonicalUrl) => {
+const createClubPost = async (req, res, accountInfo, title, description, canonicalUrl) => {
   var publiclyAvaliable = true;
 
   if (publiclyAvaliable === true) {
@@ -79,7 +79,7 @@ const createClubPost = async (req, res, title, description, accountInfo, canonic
   }
 }
 
-const clubApplyGet = async (req, res, title, description, accountInfo, canonicalUrl) => {
+const clubApplyGet = async (req, res, accountInfo, title, description, canonicalUrl) => {
   if (!req.session.loggedIn) {
     await applyRes(req, res);
     await checkUserFile.checkForUser(req, res);
@@ -88,7 +88,7 @@ const clubApplyGet = async (req, res, title, description, accountInfo, canonical
     try {
       const query = { email: req.session.email }
       var results = await unverifiedclubsModel.find(query)
-      if (results[0] != undefined || results[0] != null) {
+      if (results.length == 0) {
         res.redirect('manage-club')
       }
       if (results[0] === undefined || results[0] === null) {
@@ -112,7 +112,7 @@ const clubApplyGet = async (req, res, title, description, accountInfo, canonical
   }
 }
 
-const clubCreatedGet = async (req, res, title, description, accountInfo, canonicalUrl) => {
+const clubCreatedGet = async (req, res, accountInfo, title, description, canonicalUrl) => {
   try {
     if (!req.session.loggedIn) {
       await applyRes(req, res);
@@ -147,7 +147,6 @@ function removeEmailError(req, res) {
 }
 
 const clubManageGet = async (req, res, accountInfo, title, description, canonicalUrl) => {
-  console.log(title, description)
   if (!req.session.loggedIn) {
     // await applyRes(req, res);
     await applyRes(req, res)
@@ -195,7 +194,7 @@ const clubManageGet = async (req, res, accountInfo, title, description, canonica
   }
 };
 
-const updateInfoPost = async (req, res, title, description, accountInfo, canonicalUrl) => {
+const updateInfoPost = async (req, res, accountInfo, title, description, canonicalUrl) => {
   try {
     const { clubName, clubOwnerName, clubDescription } = req.body;
     if (!req.session.loggedIn) {

@@ -1,6 +1,3 @@
-// LOAD DOTENV
-require('dotenv').config();
-
 const {
   clubsModel
 } = require('./database')
