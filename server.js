@@ -178,15 +178,18 @@ async function RenderPageAdmin(fileName, req, res, pageFunction) {
           pageFunction(req, res, accountInfo, title, description, canonicalUrl)
         }
         else {
-          var fileName = "404"
+          await updateViews();
+          fileName = "404"
           renderView(fileName, req, res)
         }
       }
       else {
+        await updateViews();
         res.render('acceptCookies', { title, description, accountInfo, canonicalUrl })
       }
     }
     else {
+      await updateViews();
       res.render('unreleased', { title, description, accountInfo, canonicalUrl })
     }
   })
@@ -347,7 +350,7 @@ if (isPublic == true) {
     var pageFunction = clubManagment.clubManageGet
     RenderPage(fileName, req, res, pageFunction)
   });
-  app.get('/admin', async (req, res) => {
+  app.get(`/${process.env.ADMIN_UPDATE_PAGE}`, async (req, res) => {
     var fileName = "admin";
     var pageFunction = admin.admin
     RenderPageAdmin(fileName, req, res, pageFunction)

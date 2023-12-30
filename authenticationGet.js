@@ -6,6 +6,9 @@ const loginGet = async (req, res, accountInfo, title, description, canonicalUrl)
     if (req.session.accountVerified === false) {
       res.redirect('/verify')
     }
+    else {
+      res.redirect('/')
+    }
   }
   else if (!req.session.loggedIn) {
     if (req.session.forgotPasswordSuccess) {

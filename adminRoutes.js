@@ -66,7 +66,7 @@ const admin = async (req, res, accountInfo, title, description, canonicalUrl) =>
     contactRequests = await contactrequestsModel.find();
     var viewsResults = await viewsModel.find();
     totalViews = viewsResults[0].totalViews;
-    res.render(process.env.ADMIN_UPDATE_PAGE, {
+    res.render(process.env.ADMIN_EJS_PAGE, {
       feature1title,
       feature1fontawesome: feautre1fontawesome,
       feature2title,

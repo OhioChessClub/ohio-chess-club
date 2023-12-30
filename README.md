@@ -43,6 +43,7 @@ Before using the site, ensure the following configurations in the `.env` file:
 ```env
 SESSION_SECRET=secret          # Replace with a random string
 ADMIN_UPDATE_PAGE=admin        # Example: /admin for the admin page
+ADMIN_EJS_PAGE=admin           # Name of the admin EJS page view file (without .ejs) Must be in pageRender.js title and desc map.
 adminEmail=admin               # Admin account email (coded into the website so it does not have to be valid)
 databaseURL=localhost          # MongoDB hosted on the same computer
 database=ohiochessclub         # Name of the database to store website data
