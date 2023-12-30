@@ -1,13 +1,3 @@
-// LOAD DOTENV
-require('dotenv').config();
-
-
-
-// LOAD EXPRESS AND DEFINE EXPRESS MODULES
-const express = require('express')
-const session = require('express-session')
-const app = express();
-
 const {
   featuresModel,
   titlesModel,

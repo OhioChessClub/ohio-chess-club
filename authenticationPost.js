@@ -10,17 +10,8 @@ const bcrypt = require('bcrypt')
 const {
   usersModel
 } = require('./database')
-const nodeMailer = require('nodemailer')
-const transporter = nodeMailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: 'ohiochessclub@gmail.com',
-    pass: 'kjodasdsoxunxpbm'
-  }
-});
 
+const { transporter } = require('./nodeMailer')
 
 const { isValidEmail, generateRandomSixDigitNumber } = require('./regex')
 const { accountNotVerified, logInAccount, logoutAccount, removeReturn } = require('./sessionChanges')

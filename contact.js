@@ -1,37 +1,8 @@
-// LOAD DOTENV
-require('dotenv').config();
-
-
-
-// LOAD BCRYPT
-const bcrypt = require('bcrypt')
-
-
 const {
   contactrequestsModel
 } = require('./database')
 
-
-// LOAD EXPRESS AND DEFINE EXPRESS MODULES
-const express = require('express')
-const session = require('express-session')
-const nodeMailer = require('nodemailer')
-const transporter = nodeMailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: 'ohiochessclub@gmail.com',
-    pass: 'kjodasdsoxunxpbm'
-  }
-});
-
-
-const app = express();
-
-function removeReturn(req, res) {
-  req.session.loginReturnURL = null;
-}
+const { transporter } = require('./nodeMailer')
 
 const contactPost = async (req, res, title, description, accountInfo, canonicalUrl) => {
   try {
