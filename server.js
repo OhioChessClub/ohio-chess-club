@@ -4,7 +4,7 @@ var isPublic = true;
 
 // FALSE: WEBSITE IS STILL IN MAJOR DEVELOPMENT AND NOT RELEASED TO THE PUBLIC YET. BOTH HAVE DIFFERENT MEANINGS.
 // TRUE: WESITE FUNCTIONS LIKE NORMAL
-var siteReleased = true;
+var siteReleased = false;
 
 // REQUIRE STATMENTS AND IMPORTS
 require('dotenv').config()
@@ -30,13 +30,12 @@ const { renderView, updateViews, getTitleFromFile, getDescFromFile } = require('
 const { usersModel } = require('./database')
 const { checkForAdmin } = require('./checkForAdmin');
 // DECLARE NESSESARY VARIABLES AND CONFIG EXPRESS AS NEEDED
-
+app.set('trust proxy', 1)
 const postLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 80,
   standardHeaders: true,
   legacyHeaders: false,
-  validate: { xForwardedForHeader: false },
   message: "Too many requests from this IP detected. Try again in 15 minutes."
 })
 const getLimiter = rateLimit({
@@ -44,7 +43,6 @@ const getLimiter = rateLimit({
   limit: 150,
   standardHeaders: true,
   legacyHeaders: false,
-  validate: { xForwardedForHeader: false },
   message: "Too many requests from this IP detected. Try again in 15 minutes."
 })
 app.use(session({
