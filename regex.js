@@ -3,13 +3,13 @@ const isValidEmail = (email) => {
     return emailRegex.test(email);
 };
 
-const generateRandomSixDigitNumber = () => {
-    const min = 100000; // Minimum value (inclusive)
-    const max = 999999; // Maximum value (inclusive)
+const generateCode = () => {
+    const min = 10000000; // Minimum value (inclusive)
+    const max = 99999999; // Maximum value (inclusive)
     return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
 module.exports = {
     isValidEmail,
-    generateRandomSixDigitNumber
+    generateCode
 }

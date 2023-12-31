@@ -5,7 +5,7 @@ const {
 const { transporter } = require('./nodeMailer')
 const bcrypt = require('bcrypt')
 
-const { isValidEmail, generateRandomSixDigitNumber } = require('./regex')
+const { isValidEmail, generateCode } = require('./regex')
 const { accountNotVerified, logInAccount, logoutAccount, removeReturn } = require('./sessionChanges')
 const loginPost = async (req, res, accountInfo, title, description, canonicalUrl) => {
   const { email, password } = req.body;
@@ -83,7 +83,7 @@ const registerPost = async (req, res, accountInfo, title, description, canonical
       } else {
         try {
           const hashedPassword = await bcrypt.hash(req.body.password, 10);
-          const verificationCode = generateRandomSixDigitNumber();
+          const verificationCode = generateCode();
           var user = new usersModel({
             name: name,
             email: email,
@@ -141,8 +141,8 @@ const registerPost = async (req, res, accountInfo, title, description, canonical
 const verifyPost = async (req, res, title, description, accountInfo, canonicalUrl) => {
   try {
     const { enteredCode } = req.body;
-    if (enteredCode === null || enteredCode.length > 6 || enteredCode < 0) {
-      var actionError = "Number cannot be less than zero or more than six characters."
+    if (enteredCode === null || enteredCode.length > 8 || enteredCode < 10000000) {
+      var actionError = "Number cannot be less than 10000000 or more than six characters."
       res.render('verify', { actionError: actionError, email: req.session.email, accountInfo, title, description, canonicalUrl })
       return
     }
@@ -201,7 +201,7 @@ const forgotPasswordPost = async (req, res, title, description, canonicalUrl) =>
       var data = await usersModel.find(filter);
       if (data.length > 0) {
         var hostname = req.hostname;
-        const verificationCode = generateRandomSixDigitNumber();
+        const verificationCode = generateCode();
         await usersModel.findOneAndUpdate(filter, { changePasswordCode: verificationCode })
         const contents = `
       <div class="container">
