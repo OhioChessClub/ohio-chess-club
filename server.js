@@ -4,7 +4,7 @@ var isPublic = true;
 
 // FALSE: WEBSITE IS STILL IN MAJOR DEVELOPMENT AND NOT RELEASED TO THE PUBLIC YET. BOTH HAVE DIFFERENT MEANINGS.
 // TRUE: WESITE FUNCTIONS LIKE NORMAL
-var siteReleased = true;
+var siteReleased = false;
 
 // REQUIRE STATMENTS AND IMPORTS
 require('dotenv').config()
