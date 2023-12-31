@@ -63,7 +63,7 @@ const admin = async (req, res, accountInfo, title, description, canonicalUrl) =>
     course5title = coursesResults[4].courseTitle
     course5description = coursesResults[4].courseDesc
     clubs = await unverifiedclubsModel.find();
-    contactRequests = await contactrequestsModel.find();
+    contactRequests = await contactrequestsModel.find({ isFulfilled: 'n' });
     var viewsResults = await viewsModel.find();
     totalViews = viewsResults[0].totalViews;
     res.render(process.env.ADMIN_EJS_PAGE, {

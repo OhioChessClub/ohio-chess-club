@@ -3,19 +3,32 @@ const {
 } = require('./database')
 
 const { transporter } = require('./nodeMailer')
+const { isValidEmail } = require('./regex')
 
 const contactPost = async (req, res, accountInfo, title, description, canonicalUrl) => {
   try {
     var formEnabled = true;
+    console.log("formEnabled:", formEnabled);
     if (formEnabled === true) {
 
-
-
       const { contactName, contactEmail, contactText } = req.body;
+
       const isFulfilled = 'n';
+      var emailValid = await isValidEmail(contactEmail)
+      if (emailValid == true) {
 
+        if (!contactName) {
+          var error = "Please enter a name."
+          res.render('contact', { actionError: error, accountInfo, title, description, accountInfo, canonicalUrl })
+          return;
+        }
+        if (!contactText) {
+          var error = "Please ask a question."
+          res.render('contact', { actionError: error, accountInfo, title, description, accountInfo, canonicalUrl })
+          return;
+        }
 
-      const contents = `
+        const contents = `
 <div class="container">
   <div class="content">
     <h1>Thanks for reaching out to us!</h1>
@@ -30,23 +43,29 @@ const contactPost = async (req, res, accountInfo, title, description, canonicalU
 </div>
   `
 
-      await transporter.sendMail({
-        from: `Ohio Chess Club <ohiochessclub@gmail.com>`,
-        to: contactEmail,
-        subject: "Your Question has Been Recieved",
-        html: contents,
-      });
+        await transporter.sendMail({
+          from: `Ohio Chess Club <ohiochessclub@gmail.com>`,
+          to: contactEmail,
+          subject: "Your Question has Been Recieved",
+          html: contents,
+        });
 
-      await importIntoDatabase(contactName, contactEmail, contactText, isFulfilled, req, res, title, description, accountInfo, canonicalUrl);
+        await importIntoDatabase(contactName, contactEmail, contactText, isFulfilled, req, res, title, description, accountInfo, canonicalUrl);
 
-      var actionFinished = `Your request has been processed. You should be reached out to by email within 24 hours. A confirmation email has been sent to your email. (${contactEmail})`
-      res.render('contact', { actionFinished, accountInfo, title, description, accountInfo, canonicalUrl });
+        var actionFinished = `Your request has been processed. You should be reached out to by email within 24 hours. A confirmation email has been sent to your email. (${contactEmail})`
+        res.render('contact', { actionFinished, accountInfo, title, description, accountInfo, canonicalUrl });
+      }
+      else {
+        var error = "Please enter a valid email address."
+        res.render('contact', { actionError: error, accountInfo, title, description, accountInfo, canonicalUrl })
+      }
+
     }
     else {
       var error = "The contact form is not avaliable to the public at this time."
       res.render('contact', { actionError: error, accountInfo, title, description, accountInfo, canonicalUrl })
-
     }
+
 
   }
   catch (error) {

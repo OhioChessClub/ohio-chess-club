@@ -6,6 +6,9 @@ const {
   contactrequestsModel,
   clubsModel
 } = require('./database')
+
+const { transporter } = require('./nodeMailer')
+
 // COMMENT OUT HERE
 const updatefeaturetitleanddesc = async (req, res) => {
   try {
@@ -114,6 +117,10 @@ const verifyClub = async (req, res) => {
     <h4>Other information:</h4>
     <h4>Club description: ${data.clubDescription}</h4>
     <h4>Owner email: ${data.ownerEmail}</h4>
+    <div class="footer">
+    <p>This email was sent to you by the <b>Ohio Chess Club</b>.</p>
+    <p>Please do not reply to this email.</p>
+  </div>
     `
       await transporter.sendMail({
         from: `Ohio Chess Club <ohiochessclub@gmail.com>`,
@@ -139,7 +146,25 @@ const markContactResolved = async (req, res) => {
       const query = {
         _id: questionID
       }
-      await contactrequestsModel.findOneAndUpdate(query, { isFulfilled: "y" })
+      var data = await contactrequestsModel.findOneAndUpdate(query, { isFulfilled: "y" })
+      const contents = `
+    <h1>Hello ${data.name}</h1>
+    <h3>Your question has been marked as resolved. If your question was not resolved, feel free to reach out to us with this error, as we deeply apologise.</h3>
+    <br><br>
+    <h4>Other information:</h4>
+    <h4>Question Asked: ${data.question}</h4>
+    <h4>Your email: ${data.email}</h4>
+    <div class="footer">
+    <p>This email was sent to you by the <b>Ohio Chess Club</b>.</p>
+    <p>Please do not reply to this email.</p>
+  </div>
+    `
+      await transporter.sendMail({
+        from: `Ohio Chess Club <ohiochessclub@gmail.com>`,
+        to: data.email,
+        subject: "Contact Question marked as Resolved",
+        html: contents,
+      });
       res.redirect(process.env.ADMIN_UPDATE_PAGE)
     }
     catch (error) {
