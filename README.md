@@ -32,9 +32,9 @@ The client-side code is located in the `/views` folder, while everything else pe
 
 Within 2 days of this commit, expect the following updates:
 
-- **Password Requirments**
-  - Make passwords have certain requirments so they are not insecure.
-  - Client side and server side detections.
+- **Several UI Updates and Extra Styles (make site look better)
+    - Fix several CSS bugs
+    - Make site more appealing
 
 ## Configuration
 

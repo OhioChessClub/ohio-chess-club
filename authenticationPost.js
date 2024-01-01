@@ -5,7 +5,7 @@ const {
 const { transporter } = require('./nodeMailer')
 const bcrypt = require('bcrypt')
 
-const { isValidEmail, generateCode } = require('./regex')
+const { isValidEmail, generateCode, verifyPasswordValid } = require('./regex')
 const { accountNotVerified, logInAccount, logoutAccount, removeReturn } = require('./sessionChanges')
 const loginPost = async (req, res, accountInfo, title, description, canonicalUrl) => {
   const { email, password } = req.body;
@@ -76,29 +76,32 @@ const registerPost = async (req, res, accountInfo, title, description, canonical
       res.render('register', { actionError: nullError, accountInfo, title, description, canonicalUrl })
     }
     else {
-      const query = { email: email };
-      var results = await usersModel.find(query)
-      if (results.length > 0) {
-        res.render('register', { actionError: "A user with that email already exists.", accountInfo, title, description, canonicalUrl })
-      } else {
-        try {
-          const hashedPassword = await bcrypt.hash(req.body.password, 10);
-          const verificationCode = generateCode();
-          var user = new usersModel({
-            name: name,
-            email: email,
-            password: hashedPassword,
-            verificationCode: verificationCode,
-            isVerified: "false",
-            country: country,
-            city: city,
-            state: state,
-            changePasswordCode: 0
-          });
-          user.save()
-          // req.session.loggedIn = true;
-          accountNotVerified(req, res, email)
-          const contents = `
+
+      if (verifyPasswordValid(password) == true) {
+
+        const query = { email: email };
+        var results = await usersModel.find(query)
+        if (results.length > 0) {
+          res.render('register', { actionError: "A user with that email already exists.", accountInfo, title, description, canonicalUrl })
+        } else {
+          try {
+            const hashedPassword = await bcrypt.hash(req.body.password, 10);
+            const verificationCode = generateCode();
+            var user = new usersModel({
+              name: name,
+              email: email,
+              password: hashedPassword,
+              verificationCode: verificationCode,
+              isVerified: "false",
+              country: country,
+              city: city,
+              state: state,
+              changePasswordCode: 0
+            });
+            user.save()
+            // req.session.loggedIn = true;
+            accountNotVerified(req, res, email)
+            const contents = `
 <div class="container">
   <div class="content">
     <h1>Thanks for signing up!</h1>
@@ -114,35 +117,44 @@ const registerPost = async (req, res, accountInfo, title, description, canonical
 </div>
   `
 
-          await transporter.sendMail({
-            from: `Ohio Chess Club <ohiochessclub@gmail.com>`,
-            to: email,
-            subject: "Verification Code",
-            html: contents,
-          });
+            await transporter.sendMail({
+              from: `Ohio Chess Club <ohiochessclub@gmail.com>`,
+              to: email,
+              subject: "Verification Code",
+              html: contents,
+            });
 
-          res.redirect('/verify');
+            res.redirect('/verify');
 
 
-        }
-        catch (error) {
-          if (error) {
-            console.error(error);
-            res.render('register', { actionError: error, accountInfo, title, description, canonicalUrl })
+          }
+          catch (error) {
+            if (error) {
+              console.error(error);
+              res.render('register', { actionError: error, accountInfo, title, description, canonicalUrl })
+            }
           }
         }
+
+      } else {
+        var error = "Your password must contain a uppercase and lowercase letter, special character, and must not be less than 12 characters but not more than 30 characters."
+        res.render('register', { actionError: error, accountInfo, title, description, canonicalUrl }) 
       }
+
+
     }
   } catch (error) {
     console.error(error);
     res.render('register', { actionError: error, accountInfo, title, description, canonicalUrl })
   }
 };
+
+
 const verifyPost = async (req, res, title, description, accountInfo, canonicalUrl) => {
   try {
     const { enteredCode } = req.body;
-    if (enteredCode === null || enteredCode.length > 8 || enteredCode < 10000000) {
-      var actionError = "Number cannot be less than 10000000 or more than six characters."
+    if (enteredCode === null || enteredCode.length > 9 || enteredCode < 100000000) {
+      var actionError = "Incorrect number of digits."
       res.render('verify', { actionError: actionError, email: req.session.email, accountInfo, title, description, canonicalUrl })
       return
     }
@@ -226,7 +238,7 @@ const forgotPasswordPost = async (req, res, title, description, canonicalUrl) =>
         });
 
         req.session.forgotPasswordSuccess = "A link to reset your password is in your email."
-        res.redirect('/forgot-password');
+        res.redirect('/login');
 
       }
       else {
@@ -261,6 +273,11 @@ const forgotPasswordLinkPost = async (req, res, title, description, canonicalUrl
             res.render('forgotPasswordLink', { title, description, email, key, accountInfo, actionError: noPassError, canonicalUrl })
             return;
           }
+          else if(verifyPasswordValid(password) == false){
+            var error = "Your password must contain a uppercase and lowercase letter, special character, and must not be less than 12 characters but not more than 30 characters."
+            res.render('forgotPasswordLink', { title, description, email, key, accountInfo, actionError: error, canonicalUrl }) 
+          }
+          else {
           var hashedPassword = await bcrypt.hash(password, 10)
           await usersModel.findOneAndUpdate(filter, { password: hashedPassword })
           await usersModel.findOneAndUpdate(filter, { changePasswordCode: 0 })
@@ -298,6 +315,7 @@ const forgotPasswordLinkPost = async (req, res, title, description, canonicalUrl
     else {
       res.render('forgotPasswordUnauthorized', { title, description, accountInfo, canonicalUrl })
     }
+  }
   } catch (error) {
     if (error) {
       req.session.forgotPasswordError = "There was an unknown error while reseting your passcode. Our developers have been notified and are looking in to it. If this issue persists, feel free to use the contact form so we can help you directly. Thanks so much!"
