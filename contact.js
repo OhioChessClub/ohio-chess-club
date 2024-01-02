@@ -8,7 +8,6 @@ const { isValidEmail } = require('./regex')
 const contactPost = async (req, res, accountInfo, title, description, canonicalUrl) => {
   try {
     var formEnabled = true;
-    console.log("formEnabled:", formEnabled);
     if (formEnabled === true) {
 
       const { contactName, contactEmail, contactText } = req.body;
