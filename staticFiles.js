@@ -56,7 +56,7 @@ app.get('/logo512.png', (req, res) => {
 });
 
 app.get('/mainVideo.mp4', (req, res) => {
-  res.sendFile(`${directory}\\server\\videos\\introductory-video.mp4`)
+  res.sendFile(`${directory}\\videos\\introductory-video.mp4`)
 })
 
 app.get('/logos/Facebook-Banner.jpg', (req, res) => {
