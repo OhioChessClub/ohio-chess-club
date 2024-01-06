@@ -27,17 +27,13 @@ app.get('/fonts/google-robotomono.ttf', (req, res) => {
   res.sendFile(`${directory}\\views\\fonts\\google-robotomono.ttf`);
 });
 
-app.get('/css/all.css', (req, res) => {
-  res.sendFile(`${directory}\\views\\css\\all.css`);
-});
-
-app.get('/css/allFrontend.css', (req, res) => {
-  res.sendFile(`${directory}\\views\\allFrontend.css`);
+app.get('/socket.io/socket.io.js', (req, res) => {
+  res.sendFile(`${directory}\\sockets\\socket.io.min.js`)
 })
 
-app.get('/webfonts/fa-solid-900.woff2', (req, res) => {
-  res.sendFile(`${directory}\\views\\webfonts\\fa-solid-900.woff2`);
-});
+app.get('/css/allFrontend.css', (req, res) => {
+  res.sendFile(`${directory}\\views\\css\\allFrontend.css`);
+})
 
 app.get('/favicon.ico', (req, res) => {
   res.sendFile(`${directory}\\views\\favicon.ico`);
@@ -47,12 +43,8 @@ app.get('/manifest.json', (req, res) => {
   res.sendFile(`${directory}\\views\\manifest.json`)
 })
 
-app.get('/logo.png', (req, res) => {
-  res.sendFile(`${directory}\\views\\logo.png`);
-});
-
 app.get('/logo512.png', (req, res) => {
-  res.sendFile(`${directory}\\views\\logo.png`);
+  res.sendFile(`${directory}\\views\\img\\logo512.png`);
 });
 
 app.get('/mainVideo.mp4', (req, res) => {

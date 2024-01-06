@@ -18,9 +18,11 @@
     "express-rate-limit": "^7.1.5",
     "express-session": "^1.17.3",
     "forever": "^4.0.3",
+    "http": "^0.0.1-security",
     "mongoose": "^8.0.3",
     "nocache": "^4.0.0",
-    "nodemailer": "^6.9.3"
+    "nodemailer": "^6.9.3",
+    "socket.io": "^4.7.3"
   },
   "devDependencies": {
     "dotenv": "^16.1.4",

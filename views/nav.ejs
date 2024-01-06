@@ -126,3 +126,29 @@
     })
 
 </script>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    var amountOfConnections = 0;
+
+    const socket = io();
+
+    socket.on('confirm-connected', (message) => {
+        if(amountOfConnections >= 1){
+            location.reload();
+            return;
+        }
+        if (message == "SUCCESS") {
+            console.log("Confirmed successful connected to the socket.");
+            amountOfConnections++
+
+        }
+        else {
+            console.log("CONNECTION UNSUCCESSFUL TO THE SOCKET.")
+        }
+    })
+
+    socket.on('reload', (message) => {
+        location.reload()
+    })
+</script>

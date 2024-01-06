@@ -4,16 +4,14 @@ var isPublic = true;
 
 // FALSE: WEBSITE IS STILL IN MAJOR DEVELOPMENT AND NOT RELEASED TO THE PUBLIC YET. BOTH HAVE DIFFERENT MEANINGS.
 // TRUE: WESITE FUNCTIONS LIKE NORMAL
-var siteReleased = false;
+var siteReleased = true;
 
 // REQUIRE STATMENTS AND IMPORTS
 require('dotenv').config()
 const rateLimit = require('express-rate-limit')
 const nocache = require('nocache');
-const express = require('express');
-const app = express();
+const app = require('express')();
 const session = require('express-session')
-const ejs = require('ejs')
 const staticFiles = require('./staticFiles');
 const databaseHelper = require('./database');
 const authenticationPost = require('./authenticationPost');
@@ -29,6 +27,8 @@ const introductoryVideo = require('./introductory-video')
 const { renderView, updateViews, getTitleFromFile, getDescFromFile } = require('./pageRenderer')
 const { usersModel } = require('./database')
 const { checkForAdmin } = require('./checkForAdmin');
+const server = require('http').createServer(app);
+
 // DECLARE NESSESARY VARIABLES AND CONFIG EXPRESS AS NEEDED
 app.set('trust proxy', 1)
 const postLimiter = rateLimit({
@@ -365,6 +365,25 @@ if (isPublic == true) {
   app.use(async (req, res) => {
     res.status(404).render('404.ejs');
   });
+
+
+
+
+  // SOCKETS
+
+  const io = require('socket.io')(server);
+  io.on('connection', socket => {
+    // socket.emit('request', /* … */); // emit an event to the socket
+    // io.emit('broadcast', /* … */); // emit an event to all connected sockets
+    // socket.on('reply', () => { /* … */ }); // listen to the event
+    var message = "SUCCESS"
+    socket.emit('confirm-connected', message);
+
+
+
+
+  });
+
 }
 else if (isPublic == false) {
   app.get('/', async (req, res) => {
@@ -385,6 +404,6 @@ else {
 
 const port = 80;
 // const port = 80;
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Listening on port: ${port}`)
 })
